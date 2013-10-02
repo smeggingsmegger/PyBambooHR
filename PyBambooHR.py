@@ -1,6 +1,16 @@
+#!/usr/bin/env python
+#encoding:utf-8
+#author:smeggingsmegger/Scott Blevins
+#project:PyBambooHR
+#repository:http://github.com/smeggingsmegger/PyBambooHR
+#license:agpl-3.0 (http://www.gnu.org/licenses/agpl-3.0.en.html)
+
+"""
+"""
+
 import requests
 
-class BambooHR(object):
+class PyBambooHR(object):
     def __init__(self, datatype='JSON', api_key='', subdomain=''):
         # API Version
         self.api_version = 'v1'
@@ -86,8 +96,9 @@ class BambooHR(object):
                 get_fields.append(field)
 
         payload = {
-            'fields': ",".join(field_list)
+            'fields': ",".join(get_fields)
         }
+
         url = self.base_url + "employees/{0}".format(employee_id)
         r = requests.get(url, headers=self.headers, params=payload, auth=(self.api_key, ''))
         return r.json()
