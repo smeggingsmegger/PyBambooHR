@@ -1,0 +1,7 @@
+CHANGES
+=======
+
+Version 0.1.0 - 02 October 2013
+
+  * Pre-Alpha version
+  * Uses Bamboo HR API to get employee info.
