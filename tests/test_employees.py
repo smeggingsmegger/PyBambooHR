@@ -64,3 +64,19 @@ class test_employees(unittest.TestCase):
         }
         result = self.bamboo.add_employee(employee)
         self.assertEqual(result['id'], '333')
+
+    @httpretty.activate
+    def test_update_employee(self):
+        # Good result
+        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='200')
+        employee = {
+            'firstName': 'Test',
+            'lastName': 'Person'
+        }
+        result = self.bamboo.update_employee(333, employee)
+        self.assertTrue(result)
+
+        # Bad result
+        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='403')
+        result = self.bamboo.update_employee(333, employee)
+        self.assertFalse(result)
