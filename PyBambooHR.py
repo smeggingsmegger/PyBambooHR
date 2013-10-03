@@ -115,11 +115,8 @@ class PyBambooHR(object):
             "benefitClassChangeReason": ("list", ""),
         }
 
-    def add_employee(self, employee):
+    def _format_employee_xml(self, employee):
         xml_fields = ''
-        if not employee.get('firstName') or not employee.get('lastName'):
-            raise UserWarning("The 'firstName' and 'lastName' keys are required.")
-
         for key in employee:
             if not self.employee_fields.get(key):
                 raise UserWarning("You passed in an invalid field")
@@ -128,9 +125,23 @@ class PyBambooHR(object):
 
         # Really cheesy way to build XML... this should probably be replaced at some point.
         xml = "<employee>\n{}</employee>".format(xml_fields)
+        return xml
+
+    def add_employee(self, employee):
+        if not employee.get('firstName') or not employee.get('lastName'):
+            raise UserWarning("The 'firstName' and 'lastName' keys are required.")
+
+        xml = self._format_employee_xml(employee)
         url = self.base_url + 'employees/'
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
         return {'url': r.headers['location'], 'id': r.headers['location'].replace(url, "")}
+
+    def update_employee(self, id, employee):
+        xml = self._format_employee_xml(employee)
+        url = self.base_url + 'employees/{0}'.format(id)
+        r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
+        return_value = r.status_code == 200
+        return return_value
 
     def get_employee_directory(self):
         url = self.base_url + 'employees/directory'

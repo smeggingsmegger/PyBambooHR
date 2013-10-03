@@ -32,3 +32,36 @@ jim = bamboo.get_employee(123)
 pam = bamboo.get_employee(222, ['city', 'workPhone', 'workEmail'])
 
 ```
+
+Adding an employee
+
+```python
+from PyBambooHR import PyBambooHR
+
+bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
+
+# The firstName and lastName keys are required...
+employee = {'firstName': 'Test', 'lastName': 'Person'}
+
+result = bamboo.add_employee(employee)
+
+The result dict will contain id and location. "id" is the numerical BambooHR employee ID. Location is a link to that employee.
+
+```
+
+Updating an employee
+
+```python
+from PyBambooHR import PyBambooHR
+
+bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
+
+# His name was test person...
+employee = {'firstName': 'Another', 'lastName': 'Namenow'}
+
+# Use the ID and then the dict with the new information
+result = bamboo.update_employee(333, employee)
+
+result will be True or False depending on if it succeeded.
+
+```
