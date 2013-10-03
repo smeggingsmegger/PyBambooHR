@@ -53,3 +53,14 @@ class test_employees(unittest.TestCase):
         self.assertEquals(employee['workPhone'], '555-555-5555')
         self.assertEquals(employee['city'], 'Testville')
         self.assertEquals(employee['id'], '123')
+
+    @httpretty.activate
+    def test_add_employee(self):
+        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/",
+                               body='', status='201', adding_headers={'location': 'https://api.bamboohr.com/api/gateway.php/test/v1/employees/333'})
+        employee = {
+            'firstName': 'Test',
+            'lastName': 'Person'
+        }
+        result = self.bamboo.add_employee(employee)
+        self.assertEqual(result['id'], '333')
