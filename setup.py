@@ -41,7 +41,7 @@ def read(fname):
 
 setup(
     name='PyBambooHR',
-    version='0.2.0',
+    version='0.2.2',
     url='http://github.com/smeggingsmegger/PyBambooHR',
     license='MIT',
     author='Scott Blevins',
@@ -49,6 +49,8 @@ setup(
     description='A Python wrapper for the Bamboo HR API',
     long_description=read('README.md')+'\n'+read('CHANGES'),
     platforms='OS Independent',
+    packages=['PyBambooHR'],
+    include_package_data=True,
     install_requires=['requests'],
     keywords=['Bamboo', 'HR', 'BambooHR', 'API'],
     classifiers=[
