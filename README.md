@@ -3,7 +3,7 @@ PyBambooHR
 
 This is an unofficial Python API for Bamboo HR. So far it is focusing on managing employee information but the plans are to have 100% API coverage eventually.
 
-The library makes use of the requests library for Python and HTTPretty for testing. A huge thank you to both of those excellent projects.
+The library makes use of the [requests](http://docs.python-requests.org/en/latest/) library for Python and [HTTPretty](https://github.com/gabrielfalcao/HTTPretty) for testing. A huge thank you to both of those excellent projects.
 
 Using this library is very simple:
 
