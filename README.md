@@ -1,5 +1,6 @@
-PyBambooHR
-========
+# PyBambooHR 0.2.3
+
+[![Build Status](https://secure.travis-ci.org/smeggingsmegger/PyBambooHR.png)](https://travis-ci.org/smeggingsmegger/PyBambooHR)
 
 This is an unofficial Python API for Bamboo HR. So far it is focusing on managing employee information but the plans are to have 100% API coverage eventually.
 
