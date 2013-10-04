@@ -5,7 +5,7 @@
 #repository:http://github.com/smeggingsmegger/PyBambooHR
 #license:agpl-3.0 (http://www.gnu.org/licenses/agpl-3.0.en.html)
 
-"""Unittests for tvdb_api
+"""Unittests for misc. functions
 """
 
 import httpretty

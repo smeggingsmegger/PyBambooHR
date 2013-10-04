@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #coding:utf-8
-# Author:  iwschris
+# Author:  smeggingsmegger
 # Purpose: setup
 # Created: 2013-10-02
 #

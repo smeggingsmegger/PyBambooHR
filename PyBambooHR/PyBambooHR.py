@@ -6,12 +6,33 @@
 #license:mit (http://opensource.org/licenses/MIT)
 
 """
+PyBambooHR.py contains a class by the same name with functions that correspond
+to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 """
 
 import requests
 
 class PyBambooHR(object):
-    def __init__(self, datatype='JSON', api_key='', subdomain=''):
+    """
+    The PyBambooHR class is initialized with an API key, company subdomain,
+    and an optional datatype argument (defaults to JSON). This class implements
+    methods for basic CRUD operations for employees and more.
+    """
+    def __init__(self, api_key='', subdomain='', datatype='JSON'):
+        """
+        Using the subdomain, __init__ initializes the base_url for our API calls.
+        This method also sets up some headers for our HTTP requests as well as our authentication (API key).
+
+        @param api_key: String containing a valid API Key created in BambooHR.
+        @param subdomain: String containing a valid company subdomain for a company in BambooHR.
+        @param datatype: String of 'JSON' or 'XML'. Sets the Accept header for return type in our HTTP requests to BambooHR.
+        """
+        if not api_key:
+            raise ValueError('The `api_key` argument can not be empty. Please provide a valid BambooHR API key.')
+
+        if not subdomain:
+            raise ValueError('The `subdomain` argument can not be empty. Please provide a valid BambooHR company subdomain.')
+
         # API Version
         self.api_version = 'v1'
 
@@ -37,6 +58,9 @@ class PyBambooHR(object):
         if self.datatype == 'JSON':
             self.headers.update({'Accept': 'application/json'})
 
+        # These can be used as a reference for available fields, also used to validate
+        # fields in get_employee and to grab all available data if no fields are passed in
+        # the same function.
         self.employee_fields = {
             "address1": ("text", "The employee's first address line"),
             "address2": ("text", "The employee's second address line"),
@@ -116,6 +140,11 @@ class PyBambooHR(object):
         }
 
     def _format_employee_xml(self, employee):
+        """
+        Utility method for turning an employee dictionary into valid employee xml.
+
+        @param employee: Dictionary containing employee information.
+        """
         xml_fields = ''
         for key in employee:
             if not self.employee_fields.get(key):
@@ -128,6 +157,13 @@ class PyBambooHR(object):
         return xml
 
     def add_employee(self, employee):
+        """
+        API method for creating a new employee from a dictionary.
+        http://www.bamboohr.com/api/documentation/employees.php#addEmployee
+
+        @param employee: Dictionary containing employee information.
+        @return: Dictionary contianing new employee URL and ID.
+        """
         if not employee.get('firstName') or not employee.get('lastName'):
             raise UserWarning("The 'firstName' and 'lastName' keys are required.")
 
@@ -137,6 +173,14 @@ class PyBambooHR(object):
         return {'url': r.headers['location'], 'id': r.headers['location'].replace(url, "")}
 
     def update_employee(self, id, employee):
+        """
+        API method for updating an existing employee from a dictionary.
+        http://www.bamboohr.com/api/documentation/employees.php#updateEmployee
+
+        @param id: String of containing the employee id you want to update.
+        @param employee: Dictionary containing employee information.
+        @return: Boolean of request success (Status Code == 200).
+        """
         xml = self._format_employee_xml(employee)
         url = self.base_url + 'employees/{0}'.format(id)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
@@ -144,12 +188,25 @@ class PyBambooHR(object):
         return return_value
 
     def get_employee_directory(self):
+        """
+        API method for returning a globally shared company directory.
+        http://www.bamboohr.com/api/documentation/employees.php#getEmployeeDirectory
+
+        @return: A dictionary containing an 'employees' key which is a list of employees in the directory.
+        """
         url = self.base_url + 'employees/directory'
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
         return r.json()
 
     def get_employee(self, employee_id, field_list=None):
+        """
+        API method for returning a single employee based on employee id.
+        http://www.bamboohr.com/api/documentation/employees.php#getEmployee
 
+        @param employee_id: String of the employee id.
+        @param field_list: List of fields to return with the employee dictionary.
+        @return: A dictionary containing employee information from the specified field list.
+        """
         get_fields = []
 
         if field_list:
