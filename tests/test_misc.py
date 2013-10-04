@@ -8,7 +8,6 @@
 """Unittests for misc. functions
 """
 
-import httpretty
 import os
 import sys
 import unittest
@@ -34,3 +33,8 @@ class test_misc(unittest.TestCase):
         xml = self.bamboo._format_employee_xml(employee)
         self.assertIn('<field id="firstName">Test</field>', xml)
         self.assertIn('<field id="lastName">Person</field>', xml)
+
+    def test_init_value_errors(self):
+        self.assertRaises(ValueError, PyBambooHR, {'subdomain': 'test'})
+        self.assertRaises(ValueError, PyBambooHR, {'api_key': 'testingnotrealapikey'})
+        self.assertIsNotNone(PyBambooHR(subdomain='test', api_key='testingnotrealapikey'))
