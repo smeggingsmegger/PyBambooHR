@@ -192,11 +192,12 @@ class PyBambooHR(object):
         API method for returning a globally shared company directory.
         http://www.bamboohr.com/api/documentation/employees.php#getEmployeeDirectory
 
-        @return: A dictionary containing an 'employees' key which is a list of employees in the directory.
+        @return: A list of employee dictionaries which is a list of employees in the directory.
         """
         url = self.base_url + 'employees/directory'
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
-        return r.json()
+        data = r.json()
+        return data['employees']
 
     def get_employee(self, employee_id, field_list=None):
         """

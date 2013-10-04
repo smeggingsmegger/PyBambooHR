@@ -13,6 +13,8 @@ import os
 import sys
 import unittest
 
+from json import dumps
+
 # Force parent directory onto path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -25,6 +27,99 @@ class test_employees(unittest.TestCase):
     def setUp(self):
         if self.bamboo is None:
             self.bamboo = PyBambooHR(subdomain='test', api_key='testingnotrealapikey')
+
+    @httpretty.activate
+    def test_get_employee_directory(self):
+        body = {"fields":[
+        {
+            "id":"displayName",
+            "type":"text",
+            "name":"Display name"
+        },
+        {
+            "id":"firstName",
+            "type":"text",
+            "name":"First name"
+        },
+        {
+            "id":"lastName",
+            "type":"text",
+            "name":"Last name"
+        },
+        {
+            "id":"jobTitle",
+            "type":"list",
+            "name":"Job title"
+        },
+        {
+            "id":"workPhone",
+            "type":"text",
+            "name":"Work Phone"
+        },
+        {
+            "id":"workPhoneExtension",
+            "type":"text",
+            "name":"Work Extension"
+        },
+        {
+            "id":"mobilePhone",
+            "type":"text",
+            "name":"Mobile Phone"
+        },
+        {
+            "id":"workEmail",
+            "type":"email",
+            "name":"Work Email"
+        },
+        {
+            "id":"department",
+            "type":"list",
+            "name":"Department"
+        },
+        {
+            "id":"location",
+            "type":"list",
+            "name":"Location"
+        },
+        {
+            "id":"division",
+            "type":"list",
+            "name":"Division"
+        },
+        {
+            "id":"photoUploaded",
+            "type":"bool",
+            "name":"Employee photo exists"
+        },
+        {
+            "id":"photoUrl",
+            "type":"url",
+            "name":"Employee photo url"
+        }
+        ],"employees":[
+        {
+        "id":"123",
+        "displayName":"Test Person",
+        "firstName":"Test",
+        "lastName":"Person",
+        "jobTitle":"Testing Coordinator",
+        "workPhone":"555-555-5555",
+        "workPhoneExtension":"",
+        "mobilePhone":"555-555-5555",
+        "workEmail":"test@testperson.com",
+        "department":"Useless Department",
+        "location":"Testville, US",
+        "division": None,
+        "photoUploaded": False,
+        "photoUrl":"https://iws.bamboohr.com/images/photo_placeholder.gif"
+        }]
+        }
+        body = dumps(body)
+        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/directory",
+                               body=body, content_type="application/json")
+
+        employees = self.bamboo.get_employee_directory()
+        self.assertIsNotNone(employees[0])
 
     @httpretty.activate
     def test_get_employee_specific_fields(self):
