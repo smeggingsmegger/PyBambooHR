@@ -221,6 +221,8 @@ class PyBambooHR(object):
         """
         get_fields = []
 
+        field_list = [underscore_to_camelcase(field) for field in field_list]
+
         if field_list:
             for f in field_list:
                 if not self.employee_fields.get(f):
