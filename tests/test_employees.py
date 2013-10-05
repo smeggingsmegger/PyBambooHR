@@ -24,9 +24,15 @@ class test_employees(unittest.TestCase):
     # Used to store the cached instance of PyBambooHR
     bamboo = None
 
+    # Another instance, using underscore keys
+    bamboo_u = None
+
     def setUp(self):
         if self.bamboo is None:
             self.bamboo = PyBambooHR(subdomain='test', api_key='testingnotrealapikey')
+
+        if self.bamboo_u is None:
+            self.bamboo_u = PyBambooHR(subdomain='test', api_key='testingnotrealapikey', underscore_keys=True)
 
     @httpretty.activate
     def test_get_employee_directory(self):
@@ -120,6 +126,13 @@ class test_employees(unittest.TestCase):
 
         employees = self.bamboo.get_employee_directory()
         self.assertIsNotNone(employees[0])
+        self.assertEquals('123', employees[0]['id'])
+        self.assertEquals('test@testperson.com', employees[0]['workEmail'])
+
+        employees = self.bamboo_u.get_employee_directory()
+        self.assertIsNotNone(employees[0])
+        self.assertEquals('123', employees[0]['id'])
+        self.assertEquals('test@testperson.com', employees[0]['work_email'])
 
     @httpretty.activate
     def test_get_employee_specific_fields(self):
@@ -133,6 +146,11 @@ class test_employees(unittest.TestCase):
         self.assertEquals(employee['workEmail'], 'user@test.com')
         self.assertEquals(employee['workPhone'], '555-555-5555')
         self.assertEquals(employee['id'], '123')
+
+        employee = self.bamboo_u.get_employee(123, ['workPhone', 'workEmail'])
+        self.assertIsNotNone(employee)
+        self.assertEquals(employee['work_email'], 'user@test.com')
+        self.assertEquals(employee['work_phone'], '555-555-5555')
 
     @httpretty.activate
     def test_get_employee_all_fields(self):
@@ -160,6 +178,14 @@ class test_employees(unittest.TestCase):
         result = self.bamboo.add_employee(employee)
         self.assertEqual(result['id'], '333')
 
+        # Test adding with underscore keys
+        employee = {
+            'first_name': 'Test',
+            'last_name': 'Person'
+        }
+        result = self.bamboo.add_employee(employee)
+        self.assertEqual(result['id'], '333')
+
     @httpretty.activate
     def test_add_employee_failure(self):
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/",
@@ -174,6 +200,14 @@ class test_employees(unittest.TestCase):
         employee = {
             'firstName': 'Test',
             'lastName': 'Person'
+        }
+        result = self.bamboo.update_employee(333, employee)
+        self.assertTrue(result)
+
+        # Test updating with underscore keys
+        employee = {
+            'first_name': 'Test',
+            'last_name': 'Person'
         }
         result = self.bamboo.update_employee(333, employee)
         self.assertTrue(result)

@@ -1,6 +1,7 @@
 """
 A collection of misc. utilities that are used in the main class.
 """
+import re
 
 def camelcase_keys(data):
     """
@@ -23,7 +24,6 @@ def camelcase_to_underscore(name):
     """
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)).lower()
 
-
 def underscore_to_camelcase(name):
     """
     Converts a string to camelcase. (Typically from underscore.)
@@ -31,4 +31,16 @@ def underscore_to_camelcase(name):
     """
     return re.sub(r'_([a-z])', lambda m: (m.group(1).upper()), name)
 
+def underscore_keys(data):
+    """
+    Converts all the keys in a dict to camelcase. It works recursively to convert any nested dicts as well.
+    @param data: The dict to convert
+    """
+    return_dict = {}
+    for key in data:
+        if isinstance(data[key], dict):
+            return_dict[camelcase_to_underscore(key)] = underscore_keys(data[key])
+        else:
+            return_dict[camelcase_to_underscore(key)] = data[key]
 
+    return return_dict

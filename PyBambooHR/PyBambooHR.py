@@ -12,13 +12,15 @@ to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 
 import requests
 
+from utils import camelcase_keys, underscore_keys, underscore_to_camelcase
+
 class PyBambooHR(object):
     """
     The PyBambooHR class is initialized with an API key, company subdomain,
     and an optional datatype argument (defaults to JSON). This class implements
     methods for basic CRUD operations for employees and more.
     """
-    def __init__(self, api_key='', subdomain='', datatype='JSON'):
+    def __init__(self, api_key='', subdomain='', datatype='JSON', underscore_keys=False):
         """
         Using the subdomain, __init__ initializes the base_url for our API calls.
         This method also sets up some headers for our HTTP requests as well as our authentication (API key).
@@ -50,6 +52,9 @@ class PyBambooHR(object):
 
         # You must create an API key through the BambooHR interface
         self.api_key = api_key
+
+        # Some people will want to use underscore keys for employee data...
+        self.underscore_keys = underscore_keys
 
         # We are focusing on JSON for now.
         if self.datatype == 'XML':
@@ -164,6 +169,7 @@ class PyBambooHR(object):
         @param employee: Dictionary containing employee information.
         @return: Dictionary contianing new employee URL and ID.
         """
+        employee = camelcase_keys(employee)
         if not employee.get('firstName') or not employee.get('lastName'):
             raise UserWarning("The 'firstName' and 'lastName' keys are required.")
 
@@ -181,6 +187,7 @@ class PyBambooHR(object):
         @param employee: Dictionary containing employee information.
         @return: Boolean of request success (Status Code == 200).
         """
+        employee = camelcase_keys(employee)
         xml = self._format_employee_xml(employee)
         url = self.base_url + 'employees/{0}'.format(id)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
@@ -197,7 +204,11 @@ class PyBambooHR(object):
         url = self.base_url + 'employees/directory'
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
         data = r.json()
-        return data['employees']
+        employees = data['employees']
+        if self.underscore_keys:
+            employees = [underscore_keys(employee) for employee in employees]
+
+        return employees
 
     def get_employee(self, employee_id, field_list=None):
         """
@@ -226,4 +237,9 @@ class PyBambooHR(object):
 
         url = self.base_url + "employees/{0}".format(employee_id)
         r = requests.get(url, headers=self.headers, params=payload, auth=(self.api_key, ''))
-        return r.json()
+        employee = r.json()
+
+        if self.underscore_keys:
+            employee = underscore_keys(employee)
+
+        return employee
