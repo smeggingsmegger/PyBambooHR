@@ -161,6 +161,13 @@ class test_employees(unittest.TestCase):
         self.assertEqual(result['id'], '333')
 
     @httpretty.activate
+    def test_add_employee_failure(self):
+        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/",
+                               body='', status='400', adding_headers={'location': 'https://api.bamboohr.com/api/gateway.php/test/v1/employees/333'})
+        employee = {}
+        self.assertRaises(UserWarning, self.bamboo.add_employee, employee)
+
+    @httpretty.activate
     def test_update_employee(self):
         # Good result
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='200')
@@ -171,7 +178,14 @@ class test_employees(unittest.TestCase):
         result = self.bamboo.update_employee(333, employee)
         self.assertTrue(result)
 
-        # Bad result
+        # Bad API call result
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='403')
         result = self.bamboo.update_employee(333, employee)
         self.assertFalse(result)
+
+    @httpretty.activate
+    def test_update_employee_failure(self):
+        # Good result
+        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='403')
+        employee = {}
+        self.assertFalse(self.bamboo.update_employee(333, employee))
