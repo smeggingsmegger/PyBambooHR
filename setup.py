@@ -41,7 +41,7 @@ def read(fname):
 
 setup(
     name='PyBambooHR',
-    version='0.2.3',
+    version='0.2.4',
     url='http://github.com/smeggingsmegger/PyBambooHR',
     license='MIT',
     author='Scott Blevins',
