@@ -1,4 +1,4 @@
-# PyBambooHR 0.2.6
+# PyBambooHR 0.3.0
 
 [![Build Status](https://secure.travis-ci.org/smeggingsmegger/PyBambooHR.png)](https://travis-ci.org/smeggingsmegger/PyBambooHR)
 
@@ -64,5 +64,24 @@ employee = {'firstName': 'Another', 'lastName': 'Namenow'}
 result = bamboo.update_employee(333, employee)
 
 result will be True or False depending on if it succeeded.
+
+```
+
+Requesting a Report
+
+```python
+from PyBambooHR import PyBambooHR
+
+bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
+
+# Use the ID to request json information
+result = bamboo.request_company_report(1, format='json', filter_duplicates=True)
+
+# Now do stuff with your results (Will vary by report.)
+for employee in result['employees']:
+    print(employee)
+
+# Use the ID and save a pdf:
+result = bamboo.request_company_report(1, format='pdf', output_file='/tmp/report.pdf', filter_duplicates=True)
 
 ```
