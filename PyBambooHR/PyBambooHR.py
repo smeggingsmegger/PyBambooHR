@@ -170,6 +170,20 @@ class PyBambooHR(object):
         xml = "<employee>\n{}</employee>".format(xml_fields)
         return xml
 
+    def _format_report_xml(self, fields, title='My Custom Report', report_format='pdf'):
+        """
+        Utility method for turning an employee dictionary into valid employee xml.
+
+        @param fields: List containing report fields.
+        """
+        xml_fields = ''
+        for field in fields:
+            xml_fields += '\t\t<field id="{0}" />\n'.format(field)
+
+        # Really cheesy way to build XML... this should probably be replaced at some point.
+        xml = '''<report output="{0}">\n\t<title>{1}</title>\n\t<fields>\n{2}\t</fields>\n</report>'''.format(report_format, title, xml_fields)
+        return xml
+
     def add_employee(self, employee):
         """
         API method for creating a new employee from a dictionary.
@@ -292,4 +306,57 @@ class PyBambooHR(object):
                     if not block:
                         break
                     handle.write(block)
+
+        return result
+
+    def request_custom_report(self, field_list, report_format='json', title="My Custom Report", output_filename=None):
+        """
+        API method for returning a custom report by field list.
+        http://www.bamboohr.com/api/documentation/employees.php#requestCustomReport
+        Success Response: 200
+        The report will be generated in the requested format.
+        The HTTP Content-type header will be set with the mime type for the response.
+
+        @param fields: List of report fields
+        @param report_format: String of the format to receive the report. (csv, pdf, xls, xml)
+        @param output_filename: String (optional) if a filename/location is passed, the results will be saved to disk
+        @return: A result in the format specified. (Will vary depending on format requested.)
+        """
+        report_formats = self.report_formats
+        report_formats.pop('json')
+
+        if report_format not in report_formats:
+            raise UserWarning("You requested an invalid report type. Valid values are: {0}".format(','.join([k for k in report_formats])))
+
+        get_fields = []
+        field_list = [underscore_to_camelcase(field) for field in field_list] if field_list else None
+        if field_list:
+            for f in field_list:
+                if not self.employee_fields.get(f):
+                    raise UserWarning("You passed in an invalid field")
+                else:
+                    get_fields.append(f)
+        else:
+            for field in self.employee_fields:
+                get_fields.append(field)
+
+        xml = self._format_report_xml(get_fields, title=title, report_format=report_format)
+        url = self.base_url + "reports/custom/?format={0}".format(report_format)
+        r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
+
+
+        if report_format in ('csv', 'xml'):
+            # return text for csv type
+            result = r.text
+        else:
+            # return requests object for everything else after saving the file to the location specified.
+            result = r
+
+        if output_filename:
+            with open(output_filename, 'wb') as handle:
+                for block in r.iter_content(1024):
+                    if not block:
+                        break
+                    handle.write(block)
+
         return result
