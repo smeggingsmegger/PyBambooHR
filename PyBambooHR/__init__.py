@@ -1,1 +1,1 @@
-from PyBambooHR import PyBambooHR
+from .PyBambooHR import PyBambooHR
