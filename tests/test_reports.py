@@ -56,3 +56,19 @@ class test_reports(unittest.TestCase):
 
         self.assertRaises(UserWarning, self.bamboo.request_company_report, 1, report_format='gif', filter_duplicates=True)
 
+    @httpretty.activate
+    def test_request_custom_report(self):
+        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/reports/custom/?format=xls",
+                               status=200, body=self.body, content_type="application/vnd.ms-excel")
+
+        result = self.bamboo.request_custom_report(['id', 'firstName', 'lastName', 'workEmail'], report_format='xls')
+        self.assertEquals(result.headers['status'], '200')
+        self.assertEquals(result.headers['content-type'], 'application/vnd.ms-excel')
+
+    @httpretty.activate
+    def test_company_custom_format_failure(self):
+        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/reports/1?format=json&fd=yes",
+                               status=200, body=self.body, content_type="application/json")
+
+        self.assertRaises(UserWarning, self.bamboo.request_custom_report, 1, report_format='gif')
+
