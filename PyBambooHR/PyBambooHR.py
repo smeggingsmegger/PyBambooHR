@@ -309,7 +309,7 @@ class PyBambooHR(object):
 
         return result
 
-    def request_custom_report(self, field_list, report_format='json', title="My Custom Report", output_filename=None):
+    def request_custom_report(self, field_list, report_format='xls', title="My Custom Report", output_filename=None):
         """
         API method for returning a custom report by field list.
         http://www.bamboohr.com/api/documentation/employees.php#requestCustomReport
