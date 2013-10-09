@@ -12,7 +12,7 @@ to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 
 import requests
 
-from utils import camelcase_keys, underscore_keys, underscore_to_camelcase
+from .utils import camelcase_keys, underscore_keys, underscore_to_camelcase
 
 class PyBambooHR(object):
     """
