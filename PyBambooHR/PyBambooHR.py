@@ -199,6 +199,7 @@ class PyBambooHR(object):
         xml = self._format_employee_xml(employee)
         url = self.base_url + 'employees/'
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
         return {'url': r.headers['location'], 'id': r.headers['location'].replace(url, "")}
 
     def update_employee(self, id, employee):
@@ -214,6 +215,7 @@ class PyBambooHR(object):
         xml = self._format_employee_xml(employee)
         url = self.base_url + 'employees/{0}'.format(id)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
         return_value = r.status_code == 200
         return return_value
 
@@ -226,6 +228,7 @@ class PyBambooHR(object):
         """
         url = self.base_url + 'employees/directory'
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
         data = r.json()
         employees = data['employees']
         if self.underscore_keys:
@@ -262,6 +265,7 @@ class PyBambooHR(object):
 
         url = self.base_url + "employees/{0}".format(employee_id)
         r = requests.get(url, headers=self.headers, params=payload, auth=(self.api_key, ''))
+        r.raise_for_status()
         employee = r.json()
 
         if self.underscore_keys:
@@ -289,6 +293,7 @@ class PyBambooHR(object):
         filter_duplicates = 'yes' if filter_duplicates else 'no'
         url = self.base_url + "reports/{0}?format={1}&fd={2}".format(report_id, report_format, filter_duplicates)
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
 
         if report_format == 'json':
             # return list/dict for json type
@@ -343,7 +348,7 @@ class PyBambooHR(object):
         xml = self._format_report_xml(get_fields, title=title, report_format=report_format)
         url = self.base_url + "reports/custom/?format={0}".format(report_format)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
-
+        r.raise_for_status()
 
         if report_format in ('csv', 'xml'):
             # return text for csv type
