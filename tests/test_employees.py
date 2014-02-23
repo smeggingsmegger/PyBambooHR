@@ -14,6 +14,7 @@ import sys
 import unittest
 
 from json import dumps
+from requests import HTTPError
 
 # Force parent directory onto path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -191,7 +192,7 @@ class test_employees(unittest.TestCase):
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/",
                                body='', status='400', adding_headers={'location': 'https://api.bamboohr.com/api/gateway.php/test/v1/employees/333'})
         employee = {}
-        self.assertRaises(UserWarning, self.bamboo.add_employee, employee)
+        self.assertRaises(HTTPError, self.bamboo.add_employee, employee)
 
     @httpretty.activate
     def test_update_employee(self):
@@ -222,4 +223,4 @@ class test_employees(unittest.TestCase):
         # Good result
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='403')
         employee = {}
-        self.assertFalse(self.bamboo.update_employee(333, employee))
+        self.assertRaises(HTTPError, self.bamboo.update_employee(333, employee))
