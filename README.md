@@ -1,4 +1,4 @@
-# PyBambooHR 0.3.0
+# PyBambooHR 0.3.1
 
 [![Build Status](https://secure.travis-ci.org/smeggingsmegger/PyBambooHR.png)](https://travis-ci.org/smeggingsmegger/PyBambooHR)
 
