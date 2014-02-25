@@ -27,7 +27,6 @@
 # THE SOFTWARE.
 
 import os
-import markdown
 
 try:
     from setuptools import setup
@@ -36,9 +35,14 @@ except ImportError:
 
 def read(fname):
     try:
-        return markdown.markdown(open(os.path.join(os.path.dirname(__file__), fname)).read())
+        return open(os.path.join(os.path.dirname(__file__), fname)).read()
     except IOError:
         return "File '%s' not found.\n" % fname
+
+long_description = read('README.md')
+
+if os.path.exists('README.txt'):
+    long_description = open('README.txt').read()
 
 setup(
     name='PyBambooHR',
@@ -48,7 +52,7 @@ setup(
     author='Scott Blevins',
     author_email='sblevins@gmail.com',
     description='A Python wrapper for the Bamboo HR API',
-    long_description=read('README.md')+'\n'+read('CHANGES'),
+    long_description= long_description+'\n'+read('CHANGES'),
     platforms='OS Independent',
     packages=['PyBambooHR'],
     include_package_data=True,
