@@ -27,6 +27,7 @@
 # THE SOFTWARE.
 
 import os
+import markdown
 
 try:
     from setuptools import setup
@@ -35,13 +36,13 @@ except ImportError:
 
 def read(fname):
     try:
-        return open(os.path.join(os.path.dirname(__file__), fname)).read()
+        return markdown.markdown(open(os.path.join(os.path.dirname(__file__), fname)).read())
     except IOError:
         return "File '%s' not found.\n" % fname
 
 setup(
     name='PyBambooHR',
-    version='0.3.0',
+    version='0.3.1',
     url='http://github.com/smeggingsmegger/PyBambooHR',
     license='MIT',
     author='Scott Blevins',

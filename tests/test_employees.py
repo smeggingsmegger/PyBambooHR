@@ -14,6 +14,7 @@ import sys
 import unittest
 
 from json import dumps
+from requests import HTTPError
 
 # Force parent directory onto path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -212,14 +213,9 @@ class test_employees(unittest.TestCase):
         result = self.bamboo.update_employee(333, employee)
         self.assertTrue(result)
 
-        # Bad API call result
-        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='403')
-        result = self.bamboo.update_employee(333, employee)
-        self.assertFalse(result)
-
     @httpretty.activate
     def test_update_employee_failure(self):
-        # Good result
+        # Forbidden result
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='403')
         employee = {}
-        self.assertFalse(self.bamboo.update_employee(333, employee))
+        self.assertRaises(HTTPError, self.bamboo.update_employee, 333, employee)
