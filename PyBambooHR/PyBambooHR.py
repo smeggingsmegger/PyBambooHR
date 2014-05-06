@@ -11,8 +11,6 @@ to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 """
 
 import requests
-import xmltodict
-
 import utils
 
 class PyBambooHR(object):
