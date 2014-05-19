@@ -11,8 +11,7 @@ to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 """
 
 import requests
-
-from utils import camelcase_keys, underscore_keys, underscore_to_camelcase
+import utils
 
 class PyBambooHR(object):
     """
@@ -192,7 +191,7 @@ class PyBambooHR(object):
         @param employee: Dictionary containing employee information.
         @return: Dictionary contianing new employee URL and ID.
         """
-        employee = camelcase_keys(employee)
+        employee = utils.camelcase_keys(employee)
         if not employee.get('firstName') or not employee.get('lastName'):
             raise UserWarning("The 'firstName' and 'lastName' keys are required.")
 
@@ -212,7 +211,7 @@ class PyBambooHR(object):
         @param employee: Dictionary containing employee information.
         @return: Boolean of request success (Status Code == 200).
         """
-        employee = camelcase_keys(employee)
+        employee = utils.camelcase_keys(employee)
         xml = self._format_employee_xml(employee)
         url = self.base_url + 'employees/{0}'.format(id)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
@@ -234,7 +233,7 @@ class PyBambooHR(object):
         data = r.json()
         employees = data['employees']
         if self.underscore_keys:
-            employees = [underscore_keys(employee) for employee in employees]
+            employees = [utils.underscore_keys(employee) for employee in employees]
 
         return employees
 
@@ -249,7 +248,7 @@ class PyBambooHR(object):
         """
         get_fields = []
 
-        field_list = [underscore_to_camelcase(field) for field in field_list] if field_list else None
+        field_list = [utils.underscore_to_camelcase(field) for field in field_list] if field_list else None
 
         if field_list:
             for f in field_list:
@@ -272,7 +271,7 @@ class PyBambooHR(object):
         employee = r.json()
 
         if self.underscore_keys:
-            employee = underscore_keys(employee)
+            employee = utils.underscore_keys(employee)
 
         return employee
 
@@ -337,7 +336,7 @@ class PyBambooHR(object):
             raise UserWarning("You requested an invalid report type. Valid values are: {0}".format(','.join([k for k in report_formats])))
 
         get_fields = []
-        field_list = [underscore_to_camelcase(field) for field in field_list] if field_list else None
+        field_list = [utils.underscore_to_camelcase(field) for field in field_list] if field_list else None
         if field_list:
             for f in field_list:
                 if not self.employee_fields.get(f):
@@ -371,3 +370,48 @@ class PyBambooHR(object):
                     handle.write(block)
 
         return result
+
+    def get_tabular_data(self, table_name, employee_id='all'):
+        """
+        API method to retrieve tabular data for an employee, or all employees if employee_id argument is 'all' (the default). 
+        See http://www.bamboohr.com/api/documentation/tables.php for a list of available tables.
+
+        @return A dictionary with employee ID as key and a list of dictionaries, each dictionary showing
+        the values of the table's fields for a particular date, which is stored by key 'date' in the dictionary.
+        """
+        url = self.base_url + 'employees/{}/tables/{}'.format(employee_id, table_name)
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return utils.transform_tabular_data(r.content)
+
+    def get_employee_changes(self, since=None):
+        """
+        Returns a list of dictionaries, each with id, action, and lastChanged keys, representing
+        the employee records that have changed since the datetime object passed in the since= argument.
+
+        @return List of dictionaries, each with id, action, and lastChanged keys.
+        """
+        if not isinstance(since, datetime.datetime):
+            raise ValueError("since argument must be a datetime.datetime instance")
+        url = self.base_url + 'employees/changed/'
+        params = { 'since': since.strftime('%Y-%m-%dT%H:%M:%SZ') }
+        r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return utils.transform_change_list(r.content)
+
+    def get_whos_out(self, start_date=None, end_date=None):
+        start_date = utils.resolve_date_argument(start_date)
+        end_date = utils.resolve_date_argument(end_date)
+
+        url = self.base_url + 'time_off/whos_out'
+        params = {}
+        if start_date:
+            params['start'] = start_date
+        if end_date:
+            params['end'] = end_date
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return utils.transform_whos_out(r.content)
