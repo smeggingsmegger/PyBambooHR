@@ -10,8 +10,20 @@ PyBambooHR.py contains a class by the same name with functions that correspond
 to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 """
 
+import datetime
 import requests
 import utils
+
+# Python 3 basestring compatibility:
+try:
+    unicode = unicode
+except NameError:
+    # unicode is undefined: We are running Python 3
+    unicode = str
+    basestring = (str, bytes)
+else:
+    # unicode is defined: We are running Python 2
+    bytes = str
 
 class PyBambooHR(object):
     """
@@ -393,7 +405,8 @@ class PyBambooHR(object):
         @return List of dictionaries, each with id, action, and lastChanged keys.
         """
         if not isinstance(since, datetime.datetime):
-            raise ValueError("since argument must be a datetime.datetime instance")
+            raise ValueError("Error: since argument must be a datetime.datetime instance")
+
         url = self.base_url + 'employees/changed/'
         params = { 'since': since.strftime('%Y-%m-%dT%H:%M:%SZ') }
         r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))

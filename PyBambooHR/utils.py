@@ -1,7 +1,8 @@
-
 """
 A collection of misc. utilities that are used in the main class.
 """
+
+import datetime
 import re
 import xmltodict
 
