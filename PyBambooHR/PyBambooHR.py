@@ -310,6 +310,21 @@ class PyBambooHR(object):
         table = r.text
         return table
 
+    def add_row(self, employee_id, table_name, xml):
+        """
+        API method for adding a row to a table
+        http://www.bamboohr.com/api/documentation/tables.php
+
+        @param employee_id: string of employee id
+        @param table_name: string of table's name
+        @param xml: string of xml data to send to BambooHR
+        """
+        url = self.base_url + \
+            "employees/{0}/tables/{1}/".format(employee_id, table_name)
+        r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+        return True
+
     def request_company_report(self, report_id, report_format='json', output_filename=None, filter_duplicates=True):
         """
         API method for returning a company report by report ID.

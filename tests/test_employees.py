@@ -270,3 +270,20 @@ class test_employees(unittest.TestCase):
         self.assertIn('<field id="customTypeA">333 Value A</field>', table)
         self.assertIn('<field id="customTypeB">333 Value B</field>', table)
         self.assertIn('<field id="customTypeC">333 Value C</field>', table)
+
+    @httpretty.activate
+    def test_add_row(self):
+        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333/tables/customTable/",
+                               body='', status='200')
+
+        xml = """<row><field id="customTypeA">New Value A</field></row>"""
+        result = self.bamboo.add_row(333, 'customTable', xml)
+        self.assertTrue(result)
+
+    @httpretty.activate
+    def test_add_row_failure(self):
+        # Forbidden result
+        httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/123/tables/customTable/",
+                               body='', status='406')
+        xml = """<row><field id="invalidId">New Value A</field></row>"""
+        self.assertRaises(HTTPError, self.bamboo.add_row, 123, 'customTable', xml)
