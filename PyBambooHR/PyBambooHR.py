@@ -25,6 +25,7 @@ else:
     # unicode is defined: We are running Python 2
     bytes = str
 
+
 class PyBambooHR(object):
     """
     The PyBambooHR class is initialized with an API key, company subdomain,
@@ -301,13 +302,13 @@ class PyBambooHR(object):
 
         return employee
 
-    def add_row(self, employee_id, table_name, row):
+    def add_row(self, table_name, employee_id, row):
         """
         API method for adding a row to a table
         http://www.bamboohr.com/api/documentation/tables.php
 
-        @param employee_id: string of employee id
         @param table_name: string of table's name
+        @param employee_id: string of employee id
         @param xml: string of xml data to send to BambooHR
         """
         row = utils.camelcase_keys(row)
@@ -319,13 +320,13 @@ class PyBambooHR(object):
 
         return True
 
-    def update_row(self, employee_id, table_name, row_id, row):
+    def update_row(self, table_name, employee_id, row_id, row):
         """
         API method for updating a row in a table
         http://www.bamboohr.com/api/documentation/tables.php
 
-        @param employee_id: string of employee id
         @param table_name: string of table's name
+        @param employee_id: string of employee id
         @param row_id: string of id of row in table to update
         @param xml: string of xml data to send to BambooHR
         """
@@ -436,7 +437,7 @@ class PyBambooHR(object):
 
     def get_tabular_data(self, table_name, employee_id='all'):
         """
-        API method to retrieve tabular data for an employee, or all employees if employee_id argument is 'all' (the default). 
+        API method to retrieve tabular data for an employee, or all employees if employee_id argument is 'all' (the default).
         See http://www.bamboohr.com/api/documentation/tables.php for a list of available tables.
 
         @return A dictionary with employee ID as key and a list of dictionaries, each dictionary showing
@@ -459,7 +460,7 @@ class PyBambooHR(object):
             raise ValueError("Error: since argument must be a datetime.datetime instance")
 
         url = self.base_url + 'employees/changed/'
-        params = { 'since': since.strftime('%Y-%m-%dT%H:%M:%SZ') }
+        params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
         r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 

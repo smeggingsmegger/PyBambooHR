@@ -286,7 +286,7 @@ class test_employees(unittest.TestCase):
                                body='', status='200')
 
         row = {'custom_type_a': 'New Value A'}
-        result = self.bamboo.add_row(333, 'customTable', row)
+        result = self.bamboo.add_row('customTable', '333', row)
         self.assertTrue(result)
 
     @httpretty.activate
@@ -295,7 +295,7 @@ class test_employees(unittest.TestCase):
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/123/tables/customTable/",
                                body='', status='406')
         row = {'invalid_id': 'New Value A'}
-        self.assertRaises(HTTPError, self.bamboo.add_row, 123, 'customTable', row)
+        self.assertRaises(HTTPError, self.bamboo.add_row, 'customTable', '123', row)
 
     @httpretty.activate
     def test_update_row(self):
@@ -303,6 +303,6 @@ class test_employees(unittest.TestCase):
                                body='', status='200')
 
         row = {'custom_type_a': 'New Value A'}
-        result = self.bamboo.update_row(333, 'customTable', 321, row)
+        result = self.bamboo.update_row('customTable', '333', '321', row)
         self.assertTrue(result)
 
