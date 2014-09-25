@@ -287,6 +287,29 @@ class PyBambooHR(object):
 
         return employee
 
+    def get_table(self, employee_id, table_name, all=False):
+        """
+        API method for returning a table with table_name belonging to
+        the employee with employee_id
+        http://www.bamboohr.com/api/documentation/tables.php
+
+        @param employee_id: string of employee id
+        @param table_name: string of table's name
+        @param all: boolean to get all rows for all employees,
+                    see BambooHR API Docs for details
+        @return: XML of table details
+        """
+        if all:
+            employee_id = 'all'
+
+        url = self.base_url + \
+            "employees/{0}/tables/{1}/".format(employee_id, table_name)
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        table = r.text
+        return table
+
     def request_company_report(self, report_id, report_format='json', output_filename=None, filter_duplicates=True):
         """
         API method for returning a company report by report ID.

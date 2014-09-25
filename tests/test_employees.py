@@ -219,3 +219,54 @@ class test_employees(unittest.TestCase):
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333", body='', status='403')
         employee = {}
         self.assertRaises(HTTPError, self.bamboo.update_employee, 333, employee)
+
+    @httpretty.activate
+    def test_get_table(self):
+        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/123/tables/customTable/",
+                               body="""
+                                    <?xml version="1.0"?>
+                                    <table>
+                                        <row id="321" employeeId="123">
+                                            <field id="customTypeA">Value A</field>
+                                            <field id="customTypeB">Value B</field>
+                                            <field id="customTypeC">Value C</field>
+                                        </row>
+                                    </table>
+                                    """,
+                               content_type="application/xml")
+
+        table = self.bamboo.get_table(123, 'customTable')
+        self.assertIsNotNone(table)
+        self.assertIn('<field id="customTypeA">Value A</field>', table)
+        self.assertIn('<field id="customTypeB">Value B</field>', table)
+        self.assertIn('<field id="customTypeC">Value C</field>', table)
+
+    @httpretty.activate
+    def test_get_table_all_employees(self):
+        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/all/tables/customTable/",
+                               body="""
+                                    <?xml version="1.0"?>
+                                    <table>
+                                        <row id="321" employeeId="123">
+                                            <field id="customTypeA">123 Value A</field>
+                                            <field id="customTypeB">123 Value B</field>
+                                            <field id="customTypeC">123 Value C</field>
+                                        </row>
+                                        <row id="322" employeeId="333">
+                                            <field id="customTypeA">333 Value A</field>
+                                            <field id="customTypeB">333 Value B</field>
+                                            <field id="customTypeC">333 Value C</field>
+                                        </row>
+                                    </table>
+                                    """,
+                               content_type="application/xml")
+        table = self.bamboo.get_table(123, 'customTable', True)
+        self.assertIsNotNone(table)
+        self.assertIn('<row id="321" employeeId="123">', table)
+        self.assertIn('<field id="customTypeA">123 Value A</field>', table)
+        self.assertIn('<field id="customTypeB">123 Value B</field>', table)
+        self.assertIn('<field id="customTypeC">123 Value C</field>', table)
+        self.assertIn('<row id="322" employeeId="333">', table)
+        self.assertIn('<field id="customTypeA">333 Value A</field>', table)
+        self.assertIn('<field id="customTypeB">333 Value B</field>', table)
+        self.assertIn('<field id="customTypeC">333 Value C</field>', table)
