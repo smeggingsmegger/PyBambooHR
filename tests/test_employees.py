@@ -276,8 +276,8 @@ class test_employees(unittest.TestCase):
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333/tables/customTable/",
                                body='', status='200')
 
-        xml = """<row><field id="customTypeA">New Value A</field></row>"""
-        result = self.bamboo.add_row(333, 'customTable', xml)
+        row = {'custom_type_a': 'New Value A'}
+        result = self.bamboo.add_row(333, 'customTable', row)
         self.assertTrue(result)
 
     @httpretty.activate
@@ -285,15 +285,15 @@ class test_employees(unittest.TestCase):
         # Forbidden result
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/123/tables/customTable/",
                                body='', status='406')
-        xml = """<row><field id="invalidId">New Value A</field></row>"""
-        self.assertRaises(HTTPError, self.bamboo.add_row, 123, 'customTable', xml)
+        row = {'invalid_id': 'New Value A'}
+        self.assertRaises(HTTPError, self.bamboo.add_row, 123, 'customTable', row)
 
     @httpretty.activate
     def test_update_row(self):
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/333/tables/customTable/321/",
                                body='', status='200')
 
-        xml = """<row><field id="customTypeA">New Value A</field></row>"""
-        result = self.bamboo.update_row(333, 'customTable', 321, xml)
+        row = {'custom_type_a': 'New Value A'}
+        result = self.bamboo.update_row(333, 'customTable', 321, row)
         self.assertTrue(result)
 

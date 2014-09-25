@@ -73,3 +73,9 @@ class test_misc(unittest.TestCase):
 
         self.assertEqual('321 Value A', rows[1]['field'][0]['#text'])
         self.assertEqual('321 Value B', rows[1]['field'][1]['#text'])
+
+    def test__format_row_xml(self):
+        row = {'f1': 'v1', 'f2': 'v2'}
+        xml = self.bamboo._format_row_xml(row)
+        self.assertIn('<field id="f1">v1</field>', xml)
+        self.assertIn('<field id="f2">v2</field>', xml)

@@ -181,6 +181,20 @@ class PyBambooHR(object):
         xml = "<employee>\n{}</employee>".format(xml_fields)
         return xml
 
+    def _format_row_xml(self, row):
+        """
+        Utility method for turning an row dictionary into valid xml for
+        entering or updating a row into the table
+
+        @param employee: Dictionary containing row data information.
+        """
+        xml_fields = ''
+        for k, v in row.iteritems():
+            xml_fields += '\t<field id="{0}">{1}</field>\n'.format(k, v)
+
+        xml = "<row>\n{}</row>".format(xml_fields)
+        return xml
+
     def _format_report_xml(self, fields, title='My Custom Report', report_format='pdf'):
         """
         Utility method for turning an employee dictionary into valid employee xml.
@@ -310,7 +324,7 @@ class PyBambooHR(object):
         table = r.text
         return table
 
-    def add_row(self, employee_id, table_name, xml):
+    def add_row(self, employee_id, table_name, row):
         """
         API method for adding a row to a table
         http://www.bamboohr.com/api/documentation/tables.php
@@ -321,11 +335,14 @@ class PyBambooHR(object):
         """
         url = self.base_url + \
             "employees/{0}/tables/{1}/".format(employee_id, table_name)
+        row = utils.camelcase_keys(row)
+        xml = self._format_row_xml(row)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
+
         return True
 
-    def update_row(self, employee_id, table_name, row_id, xml):
+    def update_row(self, employee_id, table_name, row_id, row):
         """
         API method for updating a row in a table
         http://www.bamboohr.com/api/documentation/tables.php
@@ -337,6 +354,8 @@ class PyBambooHR(object):
         """
         url = self.base_url + \
             "employees/{0}/tables/{1}/{2}/".format(employee_id, table_name, row_id)
+        row = utils.camelcase_keys(row)
+        xml = self._format_row_xml(row)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
         return True
