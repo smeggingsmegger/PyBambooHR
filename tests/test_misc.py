@@ -15,7 +15,8 @@ import unittest
 # Force parent directory onto path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from PyBambooHR import PyBambooHR
+from PyBambooHR import PyBambooHR, utils
+
 
 class test_misc(unittest.TestCase):
     # Used to store the cached instance of PyBambooHR
@@ -38,3 +39,37 @@ class test_misc(unittest.TestCase):
         self.assertRaises(ValueError, PyBambooHR, {'subdomain': 'test'})
         self.assertRaises(ValueError, PyBambooHR, {'api_key': 'testingnotrealapikey'})
         self.assertIsNotNone(PyBambooHR(subdomain='test', api_key='testingnotrealapikey'))
+
+    def test_xml(self):
+        xml = """<?xml version="1.0"?>
+                     <table>
+                       <row id="321" employeeId="123">
+                           <field id="customFieldA">123 Value A</field>
+                           <field id="customFieldB">123 Value B</field>
+                       </row>
+                       <row id="999" employeeId="321">
+                           <field id="customFieldA">321 Value A</field>
+                           <field id="customFieldB">321 Value B</field>
+                       </row>
+                     </table>"""
+        obj = utils._parse_xml(xml)
+
+        row_id_one = obj['table']['row'][0]['@id']
+        row_id_two = obj['table']['row'][1]['@id']
+
+        self.assertEqual('321', row_id_one)
+        self.assertEqual('999', row_id_two)
+
+        employee_id_one = obj['table']['row'][0]['@employeeId']
+        employee_id_two = obj['table']['row'][1]['@employeeId']
+
+        self.assertEqual('123', employee_id_one)
+        self.assertEqual('321', employee_id_two)
+
+        rows = utils._extract(obj, 'table', 'row')
+
+        self.assertEqual('123 Value A', rows[0]['field'][0]['#text'])
+        self.assertEqual('123 Value B', rows[0]['field'][1]['#text'])
+
+        self.assertEqual('321 Value A', rows[1]['field'][0]['#text'])
+        self.assertEqual('321 Value B', rows[1]['field'][1]['#text'])
