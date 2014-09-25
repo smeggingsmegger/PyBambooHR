@@ -19,7 +19,7 @@ from requests import HTTPError
 # Force parent directory onto path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from PyBambooHR import PyBambooHR
+from PyBambooHR import PyBambooHR, utils
 
 class test_employees(unittest.TestCase):
     # Used to store the cached instance of PyBambooHR
@@ -221,55 +221,64 @@ class test_employees(unittest.TestCase):
         self.assertRaises(HTTPError, self.bamboo.update_employee, 333, employee)
 
     @httpretty.activate
-    def test_get_table(self):
-        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/123/tables/customTable/",
-                               body="""
-                                    <?xml version="1.0"?>
-                                    <table>
-                                        <row id="321" employeeId="123">
-                                            <field id="customTypeA">Value A</field>
-                                            <field id="customTypeB">Value B</field>
-                                            <field id="customTypeC">Value C</field>
-                                        </row>
-                                    </table>
-                                    """,
+    def test_get_tabular_data(self):
+        xml = """<?xml version="1.0"?>
+                 <table>
+                     <row id="321" employeeId="123">
+                         <field id="customTypeA">Value A</field>
+                         <field id="customTypeB">Value B</field>
+                         <field id="customTypeC">Value C</field>
+                     </row>
+                 </table>"""
+        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/123/tables/customTable",
+                               body=xml,
                                content_type="application/xml")
 
-        table = self.bamboo.get_table(123, 'customTable')
+        table = self.bamboo.get_tabular_data('customTable', 123)
+        d = {'123': [{'customTypeA': 'Value A',
+                      'customTypeB': 'Value B',
+                      'customTypeC': 'Value C'}]}
         self.assertIsNotNone(table)
-        self.assertIn('<field id="customTypeA">Value A</field>', table)
-        self.assertIn('<field id="customTypeB">Value B</field>', table)
-        self.assertIn('<field id="customTypeC">Value C</field>', table)
+        self.assertEqual(d, table)
 
     @httpretty.activate
-    def test_get_table_all_employees(self):
-        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/all/tables/customTable/",
-                               body="""
-                                    <?xml version="1.0"?>
-                                    <table>
-                                        <row id="321" employeeId="123">
-                                            <field id="customTypeA">123 Value A</field>
-                                            <field id="customTypeB">123 Value B</field>
-                                            <field id="customTypeC">123 Value C</field>
-                                        </row>
-                                        <row id="322" employeeId="333">
-                                            <field id="customTypeA">333 Value A</field>
-                                            <field id="customTypeB">333 Value B</field>
-                                            <field id="customTypeC">333 Value C</field>
-                                        </row>
-                                    </table>
-                                    """,
+    def test_get_tabular_data_all_employees(self):
+        xml = """<?xml version="1.0"?>
+                 <table>
+                     <row id="321" employeeId="123">
+                         <field id="customTypeA">Value A</field>
+                         <field id="customTypeB">Value B</field>
+                         <field id="customTypeC">Value C</field>
+                     </row>
+                     <row id="322" employeeId="333">
+                         <field id="customTypeA">333 Value A</field>
+                         <field id="customTypeB">333 Value B</field>
+                         <field id="customTypeC">333 Value C</field>
+                     </row>
+                 </table>"""
+        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/all/tables/customTable",
+                               body=xml,
                                content_type="application/xml")
-        table = self.bamboo.get_table(123, 'customTable', True)
+
+        table = self.bamboo.get_tabular_data('customTable')
+        d = {'123': [{'customTypeA': 'Value A',
+                      'customTypeB': 'Value B',
+                      'customTypeC': 'Value C'}],
+             '333': [{'customTypeA': '333 Value A',
+                      'customTypeB': '333 Value B',
+                      'customTypeC': '333 Value C'}]}
+
+        self.maxDiff = 10000
         self.assertIsNotNone(table)
-        self.assertIn('<row id="321" employeeId="123">', table)
-        self.assertIn('<field id="customTypeA">123 Value A</field>', table)
-        self.assertIn('<field id="customTypeB">123 Value B</field>', table)
-        self.assertIn('<field id="customTypeC">123 Value C</field>', table)
-        self.assertIn('<row id="322" employeeId="333">', table)
-        self.assertIn('<field id="customTypeA">333 Value A</field>', table)
-        self.assertIn('<field id="customTypeB">333 Value B</field>', table)
-        self.assertIn('<field id="customTypeC">333 Value C</field>', table)
+        self.assertEqual(d, table)
+        # self.assertIn('<row id="321" employeeId="123">', table)
+        # self.assertIn('<field id="customTypeA">123 Value A</field>', table)
+        # self.assertIn('<field id="customTypeB">123 Value B</field>', table)
+        # self.assertIn('<field id="customTypeC">123 Value C</field>', table)
+        # self.assertIn('<row id="322" employeeId="333">', table)
+        # self.assertIn('<field id="customTypeA">333 Value A</field>', table)
+        # self.assertIn('<field id="customTypeB">333 Value B</field>', table)
+        # self.assertIn('<field id="customTypeC">333 Value C</field>', table)
 
     @httpretty.activate
     def test_add_row(self):
