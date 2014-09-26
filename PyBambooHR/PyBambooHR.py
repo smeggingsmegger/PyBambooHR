@@ -309,7 +309,7 @@ class PyBambooHR(object):
 
         @param table_name: string of table's name
         @param employee_id: string of employee id
-        @param xml: string of xml data to send to BambooHR
+        @param row: dictionary containing row information
         """
         row = utils.camelcase_keys(row)
         xml = self._format_row_xml(row)
@@ -328,7 +328,7 @@ class PyBambooHR(object):
         @param table_name: string of table's name
         @param employee_id: string of employee id
         @param row_id: string of id of row in table to update
-        @param xml: string of xml data to send to BambooHR
+        @param row: dicionary containing row information
         """
         row = utils.camelcase_keys(row)
         xml = self._format_row_xml(row)
