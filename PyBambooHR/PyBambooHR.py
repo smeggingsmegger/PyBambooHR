@@ -25,6 +25,7 @@ else:
     # unicode is defined: We are running Python 2
     bytes = str
 
+
 class PyBambooHR(object):
     """
     The PyBambooHR class is initialized with an API key, company subdomain,
@@ -181,6 +182,20 @@ class PyBambooHR(object):
         xml = "<employee>\n{}</employee>".format(xml_fields)
         return xml
 
+    def _format_row_xml(self, row):
+        """
+        Utility method for turning an row dictionary into valid xml for
+        entering or updating a row into the table
+
+        @param employee: Dictionary containing row data information.
+        """
+        xml_fields = ''
+        for k, v in row.iteritems():
+            xml_fields += '\t<field id="{0}">{1}</field>\n'.format(k, v)
+
+        xml = "<row>\n{}</row>".format(xml_fields)
+        return xml
+
     def _format_report_xml(self, fields, title='My Custom Report', report_format='pdf'):
         """
         Utility method for turning an employee dictionary into valid employee xml.
@@ -287,6 +302,43 @@ class PyBambooHR(object):
 
         return employee
 
+    def add_row(self, table_name, employee_id, row):
+        """
+        API method for adding a row to a table
+        http://www.bamboohr.com/api/documentation/tables.php
+
+        @param table_name: string of table's name
+        @param employee_id: string of employee id
+        @param xml: string of xml data to send to BambooHR
+        """
+        row = utils.camelcase_keys(row)
+        xml = self._format_row_xml(row)
+        url = self.base_url + \
+            "employees/{0}/tables/{1}/".format(employee_id, table_name)
+        r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return True
+
+    def update_row(self, table_name, employee_id, row_id, row):
+        """
+        API method for updating a row in a table
+        http://www.bamboohr.com/api/documentation/tables.php
+
+        @param table_name: string of table's name
+        @param employee_id: string of employee id
+        @param row_id: string of id of row in table to update
+        @param xml: string of xml data to send to BambooHR
+        """
+        row = utils.camelcase_keys(row)
+        xml = self._format_row_xml(row)
+        url = self.base_url + \
+            "employees/{0}/tables/{1}/{2}/".format(employee_id, table_name, row_id)
+        r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return True
+
     def request_company_report(self, report_id, report_format='json', output_filename=None, filter_duplicates=True):
         """
         API method for returning a company report by report ID.
@@ -385,7 +437,7 @@ class PyBambooHR(object):
 
     def get_tabular_data(self, table_name, employee_id='all'):
         """
-        API method to retrieve tabular data for an employee, or all employees if employee_id argument is 'all' (the default). 
+        API method to retrieve tabular data for an employee, or all employees if employee_id argument is 'all' (the default).
         See http://www.bamboohr.com/api/documentation/tables.php for a list of available tables.
 
         @return A dictionary with employee ID as key and a list of dictionaries, each dictionary showing
@@ -408,7 +460,7 @@ class PyBambooHR(object):
             raise ValueError("Error: since argument must be a datetime.datetime instance")
 
         url = self.base_url + 'employees/changed/'
-        params = { 'since': since.strftime('%Y-%m-%dT%H:%M:%SZ') }
+        params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
         r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
