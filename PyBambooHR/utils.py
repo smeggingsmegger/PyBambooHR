@@ -65,7 +65,7 @@ def transform_tabular_data(xml_input):
     by_employee_id = {}
     for row in rows:
         eid = row['@employeeId']
-        fields = dict([ (f['@id'], f['#text']) for f in row['field'] ])
+        fields = dict([(f['@id'], f.get('#text', None)) for f in row['field']])
         by_employee_id.setdefault(eid, []).append(fields)
     return by_employee_id
 

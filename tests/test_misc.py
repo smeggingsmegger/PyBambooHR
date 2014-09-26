@@ -79,3 +79,25 @@ class test_misc(unittest.TestCase):
         xml = self.bamboo._format_row_xml(row)
         self.assertIn('<field id="f1">v1</field>', xml)
         self.assertIn('<field id="f2">v2</field>', xml)
+
+    def test_transform_tabular_data(self):
+        xml = """<?xml version="1.0"?>
+                     <table>
+                       <row id="321" employeeId="123">
+                           <field id="customFieldA">123 Value A</field>
+                           <field id="customFieldB">123 Value B</field>
+                           <field id="customFieldC"></field>
+                       </row>
+                       <row id="999" employeeId="321">
+                           <field id="customFieldA">321 Value A</field>
+                           <field id="customFieldB">321 Value B</field>
+                       </row>
+                     </table>"""
+        table = {'123': [{
+                         'customFieldA': '123 Value A',
+                         'customFieldB': '123 Value B',
+                         'customFieldC': None}],
+                 '321': [{
+                         'customFieldA': '321 Value A',
+                         'customFieldB': '321 Value B'}]}
+        self.assertEqual(table, utils.transform_tabular_data(xml))
