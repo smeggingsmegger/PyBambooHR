@@ -82,22 +82,51 @@ class test_misc(unittest.TestCase):
 
     def test_transform_tabular_data(self):
         xml = """<?xml version="1.0"?>
-                     <table>
-                       <row id="321" employeeId="123">
-                           <field id="customFieldA">123 Value A</field>
-                           <field id="customFieldB">123 Value B</field>
-                           <field id="customFieldC"></field>
-                       </row>
-                       <row id="999" employeeId="321">
-                           <field id="customFieldA">321 Value A</field>
-                           <field id="customFieldB">321 Value B</field>
-                       </row>
-                     </table>"""
+                 <table>
+                   <row id="321" employeeId="123">
+                     <field id="customFieldA">123 Value A</field>
+                     <field id="customFieldB">123 Value B</field>
+                   </row>
+                   <row id="999" employeeId="321">
+                     <field id="customFieldA">321 Value A</field>
+                   </row>
+                 </table>"""
         table = {'123': [{
                          'customFieldA': '123 Value A',
-                         'customFieldB': '123 Value B',
-                         'customFieldC': None}],
+                         'customFieldB': '123 Value B'}],
                  '321': [{
-                         'customFieldA': '321 Value A',
-                         'customFieldB': '321 Value B'}]}
+                         'customFieldA': '321 Value A'}]}
+        self.assertEqual(table, utils.transform_tabular_data(xml))
+
+    def test_transform_tabular_data_single_row(self):
+        xml = """<?xml version="1.0"?>
+                 <table>
+                   <row id="321" employeeId="123">
+                     <field id="customFieldA">123 Value A</field>
+                   </row>
+                 </table>"""
+        table = {'123': [{'customFieldA': '123 Value A'}]}
+        self.assertEqual(table, utils.transform_tabular_data(xml))
+
+    def test_transform_tabular_data_empty_table(self):
+        xml = """<?xml version="1.0"?>
+                     <table/>"""
+        table = {}
+        self.assertEqual(table, utils.transform_tabular_data(xml))
+
+    def test_transform_tabular_data_empty_field(self):
+        xml = """<?xml version="1.0"?>
+                 <table>
+                   <row id="321" employeeId="123">
+                     <field id="customFieldA">123 Value A</field>
+                     <field id="customFieldC"></field>
+                   </row>
+                   <row id="999" employeeId="321">
+                     <field id="customFieldB">321 Value B</field>
+                   </row>
+                 </table>"""
+        table = {'123': [{'customFieldA': '123 Value A',
+                          'customFieldC': None}],
+                 '321': [{'customFieldB': '321 Value B'}]}
+
         self.assertEqual(table, utils.transform_tabular_data(xml))
