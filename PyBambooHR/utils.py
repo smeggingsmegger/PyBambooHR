@@ -75,9 +75,13 @@ def transform_tabular_data(xml_input):
           </row>
         </table>
     becomes
-        {'123': [{'customFieldA': '123 Value A',
-                  'customFieldC': None}],
-         '321': [{'customFieldB': '321 Value B'}]}
+        {'123': [{
+                 'customFieldA': '123 Value A',
+                 'customFieldB': '123 Value B',
+                 'row_id': '321'}],
+         '321': [{
+                 'customFieldA': '321 Value A',
+                 'row_id': '999'}]}
     """
     obj = _parse_xml(xml_input)
     rows = _extract(obj, 'table', 'row')
