@@ -60,12 +60,33 @@ def resolve_date_argument(arg):
     raise ValueError("Date argument {} must be either datetime, date, or string in form YYYY-MM-DD".format(arg))
 
 def transform_tabular_data(xml_input):
+    """
+    Converts table data (xml) from BambooHR into a dictionary with employee
+    id as key and a list of dictionaries.
+    Each field is a dict with the id as the key and inner text as the value
+    e.g.
+        <table>
+          <row id="321" employeeId="123">
+            <field id="customFieldA">123 Value A</field>
+            <field id="customFieldC"></field>
+          </row>
+          <row id="999" employeeId="321">
+            <field id="customFieldB">321 Value B</field>
+          </row>
+        </table>
+    becomes
+        {'123': [{'customFieldA': '123 Value A',
+                  'customFieldC': None}],
+         '321': [{'customFieldB': '321 Value B'}]}
+    """
     obj = _parse_xml(xml_input)
     rows = _extract(obj, 'table', 'row')
     by_employee_id = {}
     for row in rows:
         eid = row['@employeeId']
-        fields = dict([ (f['@id'], f['#text']) for f in row['field'] ])
+        field_list = row['field'] if type(row['field']) is list \
+            else [row['field']]
+        fields = dict([(f['@id'], f.get('#text', None)) for f in field_list])
         by_employee_id.setdefault(eid, []).append(fields)
     return by_employee_id
 
@@ -98,8 +119,9 @@ def transform_change_list(xml_input):
     return events
 
 def _extract(xml_obj, first_key, second_key):
-    rows = xml_obj.get(first_key, {}).get(second_key, [])
-    return rows if isinstance(rows, list) else [ rows ]
+    first = xml_obj.get(first_key, {}) or {}
+    rows = first.get(second_key, []) or []
+    return rows if isinstance(rows, list) else [rows]
 
 def _parse_xml(input):
     return xmltodict.parse(input)
