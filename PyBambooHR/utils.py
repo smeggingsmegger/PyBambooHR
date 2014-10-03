@@ -87,6 +87,7 @@ def transform_tabular_data(xml_input):
         field_list = row['field'] if type(row['field']) is list \
             else [row['field']]
         fields = dict([(f['@id'], f.get('#text', None)) for f in field_list])
+        fields['row_id'] = row['@id']
         by_employee_id.setdefault(eid, []).append(fields)
     return by_employee_id
 
