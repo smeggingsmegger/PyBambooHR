@@ -46,7 +46,7 @@ if os.path.exists('README.txt'):
 
 setup(
     name='PyBambooHR',
-    version='0.4.0',
+    version='0.4.1',
     url='http://github.com/smeggingsmegger/PyBambooHR',
     license='MIT',
     author='Scott Blevins',
