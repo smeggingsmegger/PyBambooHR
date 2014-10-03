@@ -237,7 +237,8 @@ class test_employees(unittest.TestCase):
         table = self.bamboo.get_tabular_data('customTable', 123)
         d = {'123': [{'customTypeA': 'Value A',
                       'customTypeB': 'Value B',
-                      'customTypeC': 'Value C'}]}
+                      'customTypeC': 'Value C',
+                      'row_id': '321'}]}
 
         self.assertIsNotNone(table)
         self.assertEqual(d, table)
@@ -264,10 +265,12 @@ class test_employees(unittest.TestCase):
         table = self.bamboo.get_tabular_data('customTable')
         d = {'123': [{'customTypeA': 'Value A',
                       'customTypeB': 'Value B',
-                      'customTypeC': 'Value C'}],
+                      'customTypeC': 'Value C',
+                      'row_id': '321'}],
              '333': [{'customTypeA': '333 Value A',
                       'customTypeB': '333 Value B',
-                      'customTypeC': '333 Value C'}]}
+                      'customTypeC': '333 Value C',
+                      'row_id': '322'}]}
 
         self.assertIsNotNone(table)
         self.assertEqual(d, table)
