@@ -1,5 +1,9 @@
 CHANGES
 =======
+Version 0.4.2 - 03 October 2014
+
+  * Added row_id to row dictionary to keep track of them in case we need them.
+
 Version 0.3.6 - 03 October 2014
 
   * Improvements by Ng Zhi An
