@@ -93,9 +93,11 @@ class test_misc(unittest.TestCase):
                  </table>"""
         table = {'123': [{
                          'customFieldA': '123 Value A',
-                         'customFieldB': '123 Value B'}],
+                         'customFieldB': '123 Value B',
+                         'row_id': '321'}],
                  '321': [{
-                         'customFieldA': '321 Value A'}]}
+                         'customFieldA': '321 Value A',
+                         'row_id': '999'}]}
         self.assertEqual(table, utils.transform_tabular_data(xml))
 
     def test_transform_tabular_data_single_row(self):
@@ -105,7 +107,7 @@ class test_misc(unittest.TestCase):
                      <field id="customFieldA">123 Value A</field>
                    </row>
                  </table>"""
-        table = {'123': [{'customFieldA': '123 Value A'}]}
+        table = {'123': [{'customFieldA': '123 Value A', 'row_id': '321'}]}
         self.assertEqual(table, utils.transform_tabular_data(xml))
 
     def test_transform_tabular_data_empty_table(self):
@@ -126,7 +128,9 @@ class test_misc(unittest.TestCase):
                    </row>
                  </table>"""
         table = {'123': [{'customFieldA': '123 Value A',
-                          'customFieldC': None}],
-                 '321': [{'customFieldB': '321 Value B'}]}
+                          'customFieldC': None,
+                          'row_id': '321'}],
+                 '321': [{'customFieldB': '321 Value B',
+                          'row_id': '999'}]}
 
         self.assertEqual(table, utils.transform_tabular_data(xml))
