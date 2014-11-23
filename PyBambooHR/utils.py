@@ -50,6 +50,17 @@ def underscore_keys(data):
 
 _date_regex = re.compile(r"^\d{4}-\d{2}-\d{2}")
 
+
+def make_field_xml(id, value=None, pre='', post=''):
+    id = escape(str(id))
+    if value:
+        value = escape(str(value))
+        tag = '<field id="{}">{}</field>'.format(id, value)
+    else:
+        tag = '<field id="{}" />'.format(id)
+    return '{0}{1}{2}'.format(pre, tag, post)
+
+
 def resolve_date_argument(arg):
     if isinstance(arg, (datetime.datetime, datetime.date)):
         return arg.strftime('%Y-%m-%d')
@@ -130,3 +141,19 @@ def _extract(xml_obj, first_key, second_key):
 
 def _parse_xml(input):
     return xmltodict.parse(input)
+
+
+XML_ESCAPES = (
+    ('<', '&lt;'),
+    ('>', '&gt;'),
+    ('&', '&amp;'),
+    ("'", '&apos;'),
+    ('"', '&quot;'),
+)
+
+
+def escape(to_escape):
+    """Returns the given string with XML reserved characters encoded."""
+    for char, repl in XML_ESCAPES:
+        to_escape = to_escape.replace(char, repl)
+    return to_escape
