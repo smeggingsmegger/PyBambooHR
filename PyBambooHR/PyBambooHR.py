@@ -476,7 +476,7 @@ class PyBambooHR(object):
             params['start'] = start_date
         if end_date:
             params['end'] = end_date
-        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
         return utils.transform_whos_out(r.content)
