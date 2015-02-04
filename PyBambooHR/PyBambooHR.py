@@ -13,6 +13,7 @@ to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 import datetime
 import requests
 import utils
+from utils import make_field_xml
 
 # Python 3 basestring compatibility:
 try:
@@ -176,7 +177,7 @@ class PyBambooHR(object):
             if not self.employee_fields.get(key):
                 raise UserWarning("You passed in an invalid field")
             else:
-                xml_fields += '\t<field id="{0}">{1}</field>\n'.format(key, employee[key])
+                xml_fields += make_field_xml(key, employee[key], pre='\t', post='\n')
 
         # Really cheesy way to build XML... this should probably be replaced at some point.
         xml = "<employee>\n{}</employee>".format(xml_fields)
@@ -191,7 +192,7 @@ class PyBambooHR(object):
         """
         xml_fields = ''
         for k, v in row.iteritems():
-            xml_fields += '\t<field id="{0}">{1}</field>\n'.format(k, v)
+            xml_fields += make_field_xml(k, v, pre='\t', post='\n')
 
         xml = "<row>\n{}</row>".format(xml_fields)
         return xml
@@ -204,7 +205,7 @@ class PyBambooHR(object):
         """
         xml_fields = ''
         for field in fields:
-            xml_fields += '\t\t<field id="{0}" />\n'.format(field)
+            xml_fields += make_field_xml(field, None, pre='\t\t', post='\n')
 
         # Really cheesy way to build XML... this should probably be replaced at some point.
         xml = '''<report output="{0}">\n\t<title>{1}</title>\n\t<fields>\n{2}\t</fields>\n</report>'''.format(report_format, title, xml_fields)

@@ -74,6 +74,17 @@ class test_misc(unittest.TestCase):
         self.assertEqual('321 Value A', rows[1]['field'][0]['#text'])
         self.assertEqual('321 Value B', rows[1]['field'][1]['#text'])
 
+    def test_make_field_xml(self):
+        xml = utils.make_field_xml('123', 'T&C')
+        self.assertEqual('<field id="123">T&amp;C</field>', xml)
+
+        xml = utils.make_field_xml('123', 'T&C', pre='\t', post='\n')
+        self.assertEqual('\t<field id="123">T&amp;C</field>\n', xml)
+
+        xml = utils.make_field_xml('123', None, pre='\t', post='\n')
+        self.assertEqual('\t<field id="123" />\n', xml)
+        pass
+
     def test__format_row_xml(self):
         row = {'f1': 'v1', 'f2': 'v2'}
         xml = self.bamboo._format_row_xml(row)
@@ -88,7 +99,7 @@ class test_misc(unittest.TestCase):
                      <field id="customFieldB">123 Value B</field>
                    </row>
                    <row id="999" employeeId="321">
-                     <field id="customFieldA">321 Value A</field>
+                     <field id="customFieldA">321 &amp; Value A</field>
                    </row>
                  </table>"""
         table = {'123': [{
@@ -96,7 +107,7 @@ class test_misc(unittest.TestCase):
                          'customFieldB': '123 Value B',
                          'row_id': '321'}],
                  '321': [{
-                         'customFieldA': '321 Value A',
+                         'customFieldA': '321 & Value A',
                          'row_id': '999'}]}
         self.assertEqual(table, utils.transform_tabular_data(xml))
 
