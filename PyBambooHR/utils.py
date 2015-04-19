@@ -122,6 +122,32 @@ def transform_whos_out(xml_input):
         events.append(ev)
     return events
 
+def transform_time_off(xml_input):
+    obj = _parse_xml(xml_input)
+    rows = _extract(obj, 'requests', 'request')
+    requests = []
+    for row in rows:
+        # Sample XML
+        # <employee id="1">Jon Doe</employee>
+        # <status lastChanged="2011-08-14" lastChangedByUserId="1">approved</status>
+        # <start>2001-01-01</start>
+        # <end>2001-01-06</end>
+        # <created>2011-08-13</created>
+        # <type id="1">Vacation</type>
+        # <amount unit="days">5</amount>
+        rq = {
+            'employeeId': row['employee']['@id'],
+            'employeeName': row['employee']['#text'],
+            'status': row['status']['#text'],
+            'type': row['type']['#text'],
+            'amount': row['amount']['#text'],
+            'unit': row['amount']['@unit'],
+            'start': row['start'],
+            'end': row['end']
+        }
+        requests.append(rq)
+    return requests
+
 def transform_change_list(xml_input):
     obj = _parse_xml(xml_input)
     rows = _extract(obj, 'changeList', 'employee')
