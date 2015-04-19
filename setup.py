@@ -46,7 +46,7 @@ if os.path.exists('README.txt'):
 
 setup(
     name='PyBambooHR',
-    version='0.5.0',
+    version='0.5.1',
     url='http://github.com/smeggingsmegger/PyBambooHR',
     license='MIT',
     author='Scott Blevins',
@@ -56,7 +56,7 @@ setup(
     platforms='OS Independent',
     packages=['PyBambooHR'],
     include_package_data=True,
-    install_requires=['requests'],
+    install_requires=['requests', 'xmltodict'],
     keywords=['Bamboo', 'HR', 'BambooHR', 'API'],
     classifiers=[
         "Development Status :: 3 - Alpha",

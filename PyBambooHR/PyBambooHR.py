@@ -481,3 +481,31 @@ class PyBambooHR(object):
         r.raise_for_status()
 
         return utils.transform_whos_out(r.content)
+
+    def get_time_off_requests(self, start_date=None, end_date=None, status=None, type=None, employee_id=None):
+        start_date = utils.resolve_date_argument(start_date)
+        end_date = utils.resolve_date_argument(end_date)
+
+        params = {}
+        if start_date:
+            params['start'] = start_date
+        if end_date:
+            params['end'] = end_date
+        if status:
+            params['status'] = status
+        if type:
+            params['type'] = type
+        if employee_id:
+            params['employeeId'] = employee_id
+
+        r = self._query('time_off/requests', params, raw=True)
+        return r.content
+
+    def _query(self, url, params, raw=False):
+        url = self.base_url + url
+        r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+        if raw:
+            return r
+        else:
+            return r.json()
