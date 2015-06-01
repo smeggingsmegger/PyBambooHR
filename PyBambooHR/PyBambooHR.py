@@ -499,7 +499,8 @@ class PyBambooHR(object):
             params['employeeId'] = employee_id
 
         r = self._query('time_off/requests', params, raw=True)
-        return utils.transform_time_off(r.content)
+        return r.json()
+        # return utils.transform_time_off(r.content)
 
     def _query(self, url, params, raw=False):
         url = self.base_url + url
