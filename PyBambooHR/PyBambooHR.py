@@ -479,8 +479,8 @@ class PyBambooHR(object):
             params['end'] = end_date
         r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
-
-        return utils.transform_whos_out(r.content)
+        return r.json()
+        # return utils.transform_whos_out(r.content)
 
     def get_time_off_requests(self, start_date=None, end_date=None, status=None, type=None, employee_id=None):
         start_date = utils.resolve_date_argument(start_date)
