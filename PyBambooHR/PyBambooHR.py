@@ -394,11 +394,8 @@ class PyBambooHR(object):
         @param output_filename: String (optional) if a filename/location is passed, the results will be saved to disk
         @return: A result in the format specified. (Will vary depending on format requested.)
         """
-        report_formats = self.report_formats
-        report_formats.pop('json')
-
-        if report_format not in report_formats:
-            raise UserWarning("You requested an invalid report type. Valid values are: {0}".format(','.join([k for k in report_formats])))
+        if report_format not in self.report_formats:
+            raise UserWarning("You requested an invalid report type. Valid values are: {0}".format(','.join([k for k in self.report_formats])))
 
         get_fields = []
         field_list = [utils.underscore_to_camelcase(field) for field in field_list] if field_list else None
