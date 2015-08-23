@@ -303,6 +303,23 @@ class PyBambooHR(object):
 
         return employee
 
+    def get_employee_photo(self, employee_id, photo_size='small'):
+        """
+        API method to get photo data for an employee
+
+        @param employee_id: String of the employee id.
+        @param photo_size: String of the size of photo to fetch. Default is 'small'.
+        @return A tuple whose first element is the photo data and second element
+        is the content type header.
+        """
+        url = self.base_url + "employees/{0}/photo".format(employee_id)
+        if photo_size:
+            url = url + "/{}".format(photo_size)
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return r.content, r.headers.get('content-type', '')
+
     def add_row(self, table_name, employee_id, row):
         """
         API method for adding a row to a table
