@@ -12,8 +12,8 @@ to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 
 import datetime
 import requests
-import utils
-from utils import make_field_xml
+from . import utils
+from .utils import make_field_xml
 
 # Python 3 basestring compatibility:
 try:
