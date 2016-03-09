@@ -14,6 +14,7 @@ import datetime
 import requests
 from . import utils
 from .utils import make_field_xml
+from os.path import basename
 
 # Python 3 basestring compatibility:
 try:
@@ -319,6 +320,30 @@ class PyBambooHR(object):
         r.raise_for_status()
 
         return r.content, r.headers.get('content-type', '')
+
+    def upload_employee_file(self, employee_id, file_path, category_id, share, override_file_name=None):
+        """
+        API method to upload a file for an employee
+
+        @param employee_id: String of the employee id.
+        @param file_path: String of the path of the file to upload
+        @param category_id: The category id to upload the file to
+        @param share: Boolean indicating if the file is shared with employee
+        @param override_file_name: String to name the file uploaded, overriding the local file name
+        """
+
+        file_name = override_file_name if override_file_name else basename(file_path)
+
+        with open(file_path, "rb") as f:
+            params = {"file": f,
+                      "fileName": (None, file_name),
+                      "category": (None, str(category_id)),
+                      "share": (None, "yes" if share else "no")}
+
+            url = self.base_url + "employees/{0}/files/".format(employee_id)
+            r = requests.post(url, headers=self.headers, auth=(self.api_key, ''), files=params)
+            r.raise_for_status()
+        return True
 
     def add_row(self, table_name, employee_id, row):
         """
