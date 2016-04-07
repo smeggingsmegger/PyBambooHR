@@ -443,7 +443,7 @@ class PyBambooHR(object):
         field_list = [utils.underscore_to_camelcase(field) for field in field_list] if field_list else None
         if field_list:
             for f in field_list:
-                if not self.employee_fields.get(f):
+                if not f.startswith('custom') and not self.employee_fields.get(f):
                     raise UserWarning("You passed in an invalid field")
                 else:
                     get_fields.append(f)
