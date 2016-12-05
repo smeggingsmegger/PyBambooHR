@@ -489,7 +489,7 @@ class PyBambooHR(object):
 
         return utils.transform_tabular_data(r.content)
 
-    def get_employee_changes(self, since=None):
+    def get_employee_changes(self, since=None, type=None):
         """
         Returns a list of dictionaries, each with id, action, and lastChanged keys, representing
         the employee records that have changed since the datetime object passed in the since= argument.
@@ -501,10 +501,15 @@ class PyBambooHR(object):
 
         url = self.base_url + 'employees/changed/'
         params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
+        if type:
+            params['type'] = type
+        
         r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
-        return utils.transform_change_list(r.content)
+        return r.json()
+        # return utils.transform_change_list(r.content)
+
 
     def get_whos_out(self, start_date=None, end_date=None):
         start_date = utils.resolve_date_argument(start_date)
