@@ -127,6 +127,7 @@ class PyBambooHR(object):
             "middleName": ("text", "The employee's middle name"),
             "mobilePhone": ("phone", "The employee's mobile phone number"),
             "nickname": ("text", "The employee's nickname"),
+            "preferredName": ("text", "The employee's nickname"),
             "payChangeReason": ("list", "The reason for the employee's last pay rate change."),
             "payGroup": ("list", "The custom pay group that the employee belongs to."),
             "payGroupId": ("integer", "The id value corresponding to the pay group that an employee belongs to"),
