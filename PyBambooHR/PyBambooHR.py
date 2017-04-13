@@ -149,6 +149,7 @@ class PyBambooHR(object):
             "workPhoneExtension": ("text", "The employees work phone extension (if any)"),
             "zipcode": ("text", "The employee's zipcode"),
             "photoUploaded": ("bool", "The employee has uploaded a photo"),
+            "isPhotoUploaded": ("bool", "The employee has uploaded a photo"),
             "rehireDate": ("date", "The date the employee was rehired"),
             "adpCompanyCode": ("list", ""),
             "adpFileNumber": ("text", ""),
