@@ -133,6 +133,7 @@ class PyBambooHR(object):
             "payRate": ("currency", "The employee's CURRENT pay rate. ie: $8.25"),
             "payRateEffectiveDate": ("date", "The date most recent change was made."),
             "payType": ("pay_type", "The employee's CURRENT pay type. ie: 'hourly','salary','commission','exception hourly','monthly','piece rate','contract','daily'"),
+            "preferredName": ("text", "The employee's preferred name."),
             "ssn": ("ssn", "The employee's social security number"),
             "sin": ("sin", "The employee's Canadian Social Insurance Number"),
             "state": ("state", "The employee's state/province"),
