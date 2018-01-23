@@ -490,6 +490,21 @@ class PyBambooHR(object):
 
         return utils.transform_tabular_data(r.content)
 
+    def get_employee_changed_table(self, table_name='jobInfo', since=None):
+        """
+        API method to retrieve tabular data for changed employee.
+        See http://www.bamboohr.com/api/documentation/tables.php for a list of available tables.
+
+        @return A dictionary with employee ID as key and a list of dictionaries, each dictionary showing
+        the values of the table's fields for a particular date, which is stored by key 'date' in the dictionary.
+        """
+        if not isinstance(since, datetime.datetime):
+            raise ValueError("Error: since argument must be a datetime.datetime instance")
+
+        url = 'employees/changed/tables/{}'.format(table_name)
+        params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
+        return self._query(url, params)
+
     def get_employee_changes(self, since=None, _type=None):
         """
         Returns a list of dictionaries, each with id, action, and lastChanged keys, representing
