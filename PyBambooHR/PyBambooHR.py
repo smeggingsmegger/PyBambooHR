@@ -199,7 +199,9 @@ class PyBambooHR(object):
         xml = "<row>\n{}</row>".format(xml_fields)
         return xml
 
-    def _format_report_xml(self, fields, title='My Custom Report', report_format='pdf'):
+    def _format_report_xml(
+            self, fields, title='My Custom Report', report_format='pdf',
+            last_changed=None):
         """
         Utility method for turning an employee dictionary into valid employee xml.
 
@@ -209,8 +211,16 @@ class PyBambooHR(object):
         for field in fields:
             xml_fields += make_field_xml(field, None, pre='\t\t', post='\n')
 
+        xml_filters = ''
+        if last_changed and isinstance(last_changed, datetime.datetime):
+            xml_filters = '''
+                <filters>
+                    <lastChanged includeNull="no">%s</lastChanged>
+                </filters>
+            ''' % last_changed.strftime('%Y-%m-%dT%H:%M:%SZ')
+
         # Really cheesy way to build XML... this should probably be replaced at some point.
-        xml = '''<report output="{0}">\n\t<title>{1}</title>\n\t<fields>\n{2}\t</fields>\n</report>'''.format(report_format, title, xml_fields)
+        xml = '''<report output="{0}">\n\t<title>{1}</title>\n\t{2}<fields>\n{3}\t</fields>\n</report>'''.format(report_format, title, xml_filters, xml_fields)
         return xml
 
     def add_employee(self, employee):
@@ -424,7 +434,9 @@ class PyBambooHR(object):
 
         return result
 
-    def request_custom_report(self, field_list, report_format='xls', title="My Custom Report", output_filename=None):
+    def request_custom_report(
+            self, field_list, report_format='xls', title="My Custom Report",
+            output_filename=None, last_changed=None):
         """
         API method for returning a custom report by field list.
         http://www.bamboohr.com/api/documentation/employees.php#requestCustomReport
@@ -452,7 +464,9 @@ class PyBambooHR(object):
             for field in self.employee_fields:
                 get_fields.append(field)
 
-        xml = self._format_report_xml(get_fields, title=title, report_format=report_format)
+        xml = self._format_report_xml(
+            get_fields, title=title, report_format=report_format,
+            last_changed=last_changed)
         url = self.base_url + "reports/custom/?format={0}".format(report_format)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
