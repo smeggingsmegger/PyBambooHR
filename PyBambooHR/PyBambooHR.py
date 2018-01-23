@@ -505,7 +505,7 @@ class PyBambooHR(object):
         r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
-        return utils.transform_change_list(r.content)
+        return r.json()
 
     def get_whos_out(self, start_date=None, end_date=None):
         start_date = utils.resolve_date_argument(start_date)
