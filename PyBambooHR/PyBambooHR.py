@@ -22,6 +22,13 @@ try:
 except NameError:
     # unicode is undefined: We are running Python 3
     unicode = str
+
+    # basestring is undefined: We are running Python 3
+    try:
+        basestring
+    except NameError:
+        basestring = str
+
     basestring = (str, bytes)
 else:
     # unicode is defined: We are running Python 2
