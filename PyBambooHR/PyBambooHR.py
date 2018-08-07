@@ -382,7 +382,7 @@ class PyBambooHR(object):
 
         return True
 
-    def request_company_report(self, report_id, report_format='json', output_filename=None, filter_duplicates=True):
+    def request_company_report(self, report_id, report_format='json', output_filename=None, filter_duplicates=True, only_current=False):
         """
         API method for returning a company report by report ID.
         http://www.bamboohr.com/api/documentation/employees.php#requestCompanyReport
@@ -394,13 +394,18 @@ class PyBambooHR(object):
         @param report_format: String of the format to receive the report. (csv, pdf, xls, xml, json)
         @param output_filename: String (optional) if a filename/location is passed, the results will be saved to disk
         @param filter_duplicates: Boolean. True: apply standard duplicate field filtering (Default True)
+        @param only_current: Boolean (default false), if we should
+            hide columns for users that are not Active.
         @return: A result in the format specified. (Will vary depending on format requested.)
         """
         if report_format not in self.report_formats:
             raise UserWarning("You requested an invalid report type. Valid values are: {0}".format(','.join([k for k in self.report_formats])))
 
         filter_duplicates = 'yes' if filter_duplicates else 'no'
-        url = self.base_url + "reports/{0}?format={1}&fd={2}".format(report_id, report_format, filter_duplicates)
+        only_current = 'True' if only_current else 'False'
+        url = (self.base_url +
+               "reports/{0}?format={1}&fd={2}&onlyCurrent={3}".format(
+            report_id, report_format, filter_duplicates, only_current))
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
