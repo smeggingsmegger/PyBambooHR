@@ -13,6 +13,7 @@ to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 import datetime
 import requests
 from . import utils
+from . import config
 from .utils import make_field_xml
 from os.path import basename
 
@@ -44,10 +45,10 @@ class PyBambooHR(object):
         @param datatype: String of 'JSON' or 'XML'. Sets the Accept header for return type in our HTTP requests to BambooHR.
         """
         if not api_key:
-            raise ValueError('The `api_key` argument can not be empty. Please provide a valid BambooHR API key.')
+            api_key = config.api_key
 
         if not subdomain:
-            raise ValueError('The `subdomain` argument can not be empty. Please provide a valid BambooHR company subdomain.')
+            subdomain = config.subdomain
 
         # API Version
         self.api_version = 'v1'
@@ -167,6 +168,9 @@ class PyBambooHR(object):
             "benefitClassClass": ("list", ""),
             "benefitClassChangeReason": ("list", ""),
         }
+
+        # dicctionary with employees data
+        self.employees = {}
 
     def _format_employee_xml(self, employee):
         """
@@ -305,6 +309,37 @@ class PyBambooHR(object):
 
         return employee
 
+    def get_all_employees(self, field_list=None, disabledUsers=False, reloadEmployees=False):
+        """
+        API method for returning a dictionary of employees.
+
+        @param allUsers: Boolean flag that indicates if get all employees.
+        @param field_list: List of fields to return with the employee dictionary.
+        @param reloadEmployees: Boolean flag that indicates if get all employees again.
+        @return: Dictionary of dictionarys containing employees information.
+        """
+        if reloadEmployees or not self.employees:
+            self.employees = {}
+
+            users = {}
+            # get all employees (doesn't get whom don't have activity)
+            for u in self.get_meta_users().values():
+                users[str(u['employeeId'])] = True if u['status']=='enabled' else False
+            # get all enabled employees (included whom don't have activity, but are enabled)
+            for u in self.get_employee_directory():
+                users[u['id']] = True
+
+            # filter enabled/active employees
+            if not disabledUsers:
+                users = {k:v for k,v in users.items() if v}
+
+            # get employees data according to field_list
+            for i,uKey in enumerate(users.keys()):
+                if uKey not in self.employees.keys():
+                    self.employees[uKey] = self.get_employee(uKey, field_list=field_list)
+
+        return self.employees
+
     def get_employee_photo(self, employee_id, photo_size='small'):
         """
         API method to get photo data for an employee
@@ -321,6 +356,39 @@ class PyBambooHR(object):
         r.raise_for_status()
 
         return r.content, r.headers.get('content-type', '')
+
+    def get_employee_changes(self, since=None):
+        """
+        Returns a list of dictionaries, each with id, action, and lastChanged keys, representing
+        the employee records that have changed since the datetime object passed in the since= argument.
+
+        @return List of dictionaries, each with id, action, and lastChanged keys.
+        """
+        if not isinstance(since, datetime.datetime):
+            raise ValueError("Error: since argument must be a datetime.datetime instance")
+
+        url = self.base_url + 'employees/changed/'
+        params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
+        #r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
+        r = requests.get(url, params=params, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return utils.transform_change_list(r.content)
+
+    def get_employee_files(self, employee_id):
+        """
+        API method to get files data for an employee
+
+        @param employee_id: String of the employee id.
+        @return A dictionary with data about the files of the employee
+        """
+
+        url = self.base_url + "employees/{0}/files/view/".format(employee_id)
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+        data = utils.transform_table_data(r.content)
+
+        return data['employee']
 
     def upload_employee_file(self, employee_id, file_path, category_id, share, override_file_name=None):
         """
@@ -485,27 +553,10 @@ class PyBambooHR(object):
         the values of the table's fields for a particular date, which is stored by key 'date' in the dictionary.
         """
         url = self.base_url + 'employees/{}/tables/{}'.format(employee_id, table_name)
-        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r = requests.get(url, auth=(self.api_key, ''))
         r.raise_for_status()
 
         return utils.transform_tabular_data(r.content)
-
-    def get_employee_changes(self, since=None):
-        """
-        Returns a list of dictionaries, each with id, action, and lastChanged keys, representing
-        the employee records that have changed since the datetime object passed in the since= argument.
-
-        @return List of dictionaries, each with id, action, and lastChanged keys.
-        """
-        if not isinstance(since, datetime.datetime):
-            raise ValueError("Error: since argument must be a datetime.datetime instance")
-
-        url = self.base_url + 'employees/changed/'
-        params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
-        r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
-        r.raise_for_status()
-
-        return utils.transform_change_list(r.content)
 
     def get_whos_out(self, start_date=None, end_date=None):
         start_date = utils.resolve_date_argument(start_date)
@@ -541,6 +592,70 @@ class PyBambooHR(object):
         r = self._query('time_off/requests', params, raw=True)
         return r.json()
         # return utils.transform_time_off(r.content)
+
+    def get_meta_fields(self):
+        """
+        API method for returning a list of fields info.
+        https://www.bamboohr.com/api/documentation/metadata.php#getFields
+        Success Response: 200
+        The HTTP Content-type header will be set with the mime type for the response.
+
+        @return: list containing fields information
+        """
+        url = self.base_url + "meta/fields/"
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return r.json()
+
+    def get_meta_tables(self):
+        """
+        API method for returning a list of tables info.
+        https://www.bamboohr.com/api/documentation/metadata.php#getTables
+        Success Response: 200
+        The HTTP Content-type header will be set with the mime type for the response.
+
+        @return: list containing tables information
+        """
+
+        url = self.base_url + "meta/tables/"
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+        data = utils.transform_table_data(r.content)
+
+        return data['tables']['table']
+
+    def get_meta_lists(self):
+        """
+        API method for returning a list with lists fields info.
+        https://www.bamboohr.com/api/documentation/metadata.php#getLists
+        Success Response: 200
+        The HTTP Content-type header will be set with the mime type for the response.
+
+        @return: list containing lists fields information
+        """
+
+        url = self.base_url + "meta/lists/"
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return r.json()
+
+    def get_meta_users(self):
+        """
+        API method for returning a dictionary of users info.
+        https://www.bamboohr.com/api/documentation/metadata.php#getUsers
+        Success Response: 200
+        The HTTP Content-type header will be set with the mime type for the response.
+
+        @return: dictionary containing users information
+        """
+
+        url = self.base_url + "meta/users/"
+        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return r.json()
 
     def _query(self, url, params, raw=False):
         url = self.base_url + url

@@ -5,6 +5,7 @@ A collection of misc. utilities that are used in the main class.
 import datetime
 import re
 import xmltodict
+import json
 
 def camelcase_keys(data):
     """
@@ -106,6 +107,53 @@ def transform_tabular_data(xml_input):
         by_employee_id.setdefault(eid, []).append(fields)
     return by_employee_id
 
+def transform_table_data(xml_input):
+    """
+    Converts table data (xml) from BambooHR into a dictionary or list
+    Each field is a dict with the id as the key and inner text as the value
+    e.g.
+    <tables>
+         <table alias="customTable1">
+          <field id="5908" alias="custom1" type="date">Date</field>
+          <field id="5909" alias="custom2" type="currency">Amount</field>
+         </table>
+         <table alias="customTable2">
+          <field id="5900" alias="custom3" type="list">Type</field>
+         </table>
+    </tables>
+    becomes
+        {"tables":{"table":[{
+            u'alias': u'customTable1',
+            u'field': [
+                {
+                    u'alias': u'custom1',
+                    u'id': u'5908',
+                    u'text': u'Date',
+                    u'type': u'date'
+                },
+                {
+                    u'alias': u'custom2',
+                    u'id': u'5909',
+                    u'text': u'Amount',
+                    u'type': u'currency'
+                }]
+            },{
+            u'alias': u'customTable2',
+            u'field': [
+                {
+                    u'alias': u'custom3',
+                    u'id': u'5900',
+                    u'text': u'Type',
+                    u'type': u'list'
+                }
+            ]}
+        ]}}
+    """
+    obj = _parse_xml(xml_input)
+    d = json.loads(json.dumps(obj))
+    d = change_keys(d)
+    return d
+
 def transform_whos_out(xml_input):
     obj = _parse_xml(xml_input)
     rows = _extract(obj, 'calendar', 'item')
@@ -168,6 +216,25 @@ def _extract(xml_obj, first_key, second_key):
 def _parse_xml(input):
     return xmltodict.parse(input)
 
+def change_keys(obj):
+    """Replace keys of dictionaries recursively
+
+    TODO: change convert() to recive a list of string to replace
+    """
+    def convert(k):
+        return k.replace("@", "").replace("#", "")
+
+    if isinstance(obj, dict):
+        new = {}
+        for k, v in obj.items():
+            new[convert(k)] = change_keys(v)
+    elif isinstance(obj, list):
+        new = []
+        for v in obj:
+            new.append(change_keys(v))
+    else:
+        return obj
+    return new
 
 XML_ESCAPES = (
     ('<', '&lt;'),
@@ -176,7 +243,6 @@ XML_ESCAPES = (
     ("'", '&apos;'),
     ('"', '&quot;'),
 )
-
 
 def escape(to_escape):
     """Returns the given string with XML reserved characters encoded."""
