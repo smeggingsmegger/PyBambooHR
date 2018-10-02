@@ -622,8 +622,9 @@ class PyBambooHR(object):
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
         data = utils.transform_table_data(r.content)
+        self.meta_tables = data['tables']['table']
 
-        return data['tables']['table']
+        return self.meta_tables
 
     def get_meta_lists(self):
         """
