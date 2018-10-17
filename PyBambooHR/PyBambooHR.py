@@ -619,7 +619,7 @@ class PyBambooHR(object):
         """
 
         url = self.base_url + "meta/tables/"
-        r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
+        r = requests.get(url, auth=(self.api_key, ''))
         r.raise_for_status()
         data = utils.transform_table_data(r.content)
         self.meta_tables = data['tables']['table']
