@@ -83,7 +83,9 @@ class test_misc(unittest.TestCase):
 
         xml = utils.make_field_xml('123', None, pre='\t', post='\n')
         self.assertEqual('\t<field id="123" />\n', xml)
-        pass
+
+        xml = utils.make_field_xml('123', u'Úñíçôdé')
+        self.assertEqual(u'<field id="123">Úñíçôdé</field>', xml)
 
     def test__format_row_xml(self):
         row = {'f1': 'v1', 'f2': 'v2'}

@@ -187,6 +187,13 @@ class test_employees(unittest.TestCase):
         result = self.bamboo.add_employee(employee)
         self.assertEqual(result['id'], '333')
 
+        employee = {
+            'firstName': u'Test',
+            'lastName': u'Pêrsón'
+        }
+        result = self.bamboo.add_employee(employee)
+        self.assertEqual(result['id'], '333')
+
     @httpretty.activate
     def test_add_employee_failure(self):
         httpretty.register_uri(httpretty.POST, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/",
