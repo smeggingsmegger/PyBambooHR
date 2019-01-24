@@ -183,7 +183,7 @@ class PyBambooHR(object):
 
         # Really cheesy way to build XML... this should probably be replaced at some point.
         xml = "<employee>\n%s</employee>" % xml_fields
-        return xml
+        return xml.encode('utf-8')
 
     def _format_row_xml(self, row):
         """
@@ -197,7 +197,7 @@ class PyBambooHR(object):
             xml_fields += make_field_xml(k, v, pre='\t', post='\n')
 
         xml = "<row>\n%s</row>" % xml_fields
-        return xml
+        return xml.encode('utf-8')
 
     def _format_report_xml(self, fields, title='My Custom Report', report_format='pdf'):
         """
@@ -211,7 +211,7 @@ class PyBambooHR(object):
 
         # Really cheesy way to build XML... this should probably be replaced at some point.
         xml = '''<report output="%s">\n\t<title>%s</title>\n\t<fields>\n%s\t</fields>\n</report>''' % (report_format, title, xml_fields)
-        return xml
+        return xml.encode('utf-8')
 
     def add_employee(self, employee):
         """
