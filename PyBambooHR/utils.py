@@ -6,6 +6,13 @@ import datetime
 import re
 import xmltodict
 
+# keep python 2 - 3 compatibility
+try:
+    unicode
+except:
+    unicode = str
+
+
 def camelcase_keys(data):
     """
     Converts all the keys in a dict to camelcase. It works recursively to convert any nested dicts as well.
@@ -54,11 +61,11 @@ _date_regex = re.compile(r"^\d{4}-\d{2}-\d{2}")
 def make_field_xml(id, value=None, pre='', post=''):
     id = escape(str(id))
     if value:
-        value = escape(str(value))
-        tag = '<field id="{}">{}</field>'.format(id, value)
+        value = escape(unicode(value))
+        tag = '<field id="%s">%s</field>' % (id, value)
     else:
-        tag = '<field id="{}" />'.format(id)
-    return '{0}{1}{2}'.format(pre, tag, post)
+        tag = '<field id="%s" />' % id
+    return '%s%s%s' % (pre, tag, post)
 
 
 def resolve_date_argument(arg):
