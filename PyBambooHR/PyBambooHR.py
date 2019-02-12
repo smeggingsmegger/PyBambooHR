@@ -34,7 +34,8 @@ class PyBambooHR(object):
     and an optional datatype argument (defaults to JSON). This class implements
     methods for basic CRUD operations for employees and more.
     """
-    def __init__(self, subdomain='', api_key='', onlyCurrent=True, datatype='JSON', underscore_keys=False):
+
+    def __init__(self, subdomain='', api_key='', datatype='JSON', underscore_keys=False, **kwargs):
         """
         Using the subdomain, __init__ initializes the base_url for our API calls.
         This method also sets up some headers for our HTTP requests as well as our authentication (API key).
@@ -71,7 +72,7 @@ class PyBambooHR(object):
         self.underscore_keys = underscore_keys
 
         # Ask BambooHR for information that is scheduled in the future
-        self.onlyCurrent = onlyCurrent
+        self.only_current = kwargs.get('only_current', False)
 
         # We are focusing on JSON for now.
         if self.datatype == 'XML':
@@ -88,6 +89,9 @@ class PyBambooHR(object):
             'xml': 'application/xml',
             'json': 'application/json'
         }
+
+        # Whether or not to verify user fields. Defaults to False.
+        self.verify_fields = kwargs.get('verify_fields', False)
 
         # These can be used as a reference for available fields, also used to validate
         # fields in get_employee and to grab all available data if no fields are passed in
@@ -110,6 +114,7 @@ class PyBambooHR(object):
             "ethnicity": ("list", "The employee's ethnicity"),
             "exempt": ("list", "The FLSA employee exemption code (Exempt or Non-exempt)"),
             "firstName": ("text", "The employee's first name"),
+            "preferredName": ("text", "The employee's preferred name"),
             "flsaCode": ("list", "The employee's FLSA code. Ie: 'Exempt', 'Non-excempt'"),
             "fullName1": ("text", "Employee's first and last name. Example: John Doe. Ready only."),
             "fullName2": ("text", "Employee's last and first name. Example: Doe, John. Read only."),
@@ -179,7 +184,7 @@ class PyBambooHR(object):
         """
         xml_fields = ''
         for key in employee:
-            if not self.employee_fields.get(key):
+            if not self.employee_fields.get(key) and self.verify_fields:
                 raise UserWarning("You passed in an invalid field")
             else:
                 xml_fields += make_field_xml(key, employee[key], pre='\t', post='\n')
@@ -297,7 +302,7 @@ class PyBambooHR(object):
             'fields': ",".join(get_fields)
         }
 
-        if self.onlyCurrent == False:
+        if self.only_current == False:
             payload.update({
                 'onlyCurrent': 'false'
             })
@@ -513,7 +518,7 @@ class PyBambooHR(object):
         r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
-        return utils.transform_change_list(r.content)
+        return r.json()
 
     def get_whos_out(self, start_date=None, end_date=None):
         start_date = utils.resolve_date_argument(start_date)
