@@ -143,6 +143,7 @@ class PyBambooHR(object):
             "middleName": ("text", "The employee's middle name"),
             "mobilePhone": ("phone", "The employee's mobile phone number"),
             "nickname": ("text", "The employee's nickname"),
+            "preferredName": ("text", "The employee's nickname"),
             "payChangeReason": ("list", "The reason for the employee's last pay rate change."),
             "payGroup": ("list", "The custom pay group that the employee belongs to."),
             "payGroupId": ("integer", "The id value corresponding to the pay group that an employee belongs to"),
@@ -165,6 +166,7 @@ class PyBambooHR(object):
             "workPhoneExtension": ("text", "The employees work phone extension (if any)"),
             "zipcode": ("text", "The employee's zipcode"),
             "photoUploaded": ("bool", "The employee has uploaded a photo"),
+            "isPhotoUploaded": ("bool", "The employee has uploaded a photo"),
             "rehireDate": ("date", "The date the employee was rehired"),
             "adpCompanyCode": ("list", ""),
             "adpFileNumber": ("text", ""),
@@ -544,7 +546,7 @@ class PyBambooHR(object):
         field_list = [utils.underscore_to_camelcase(field) for field in field_list] if field_list else None
         if field_list:
             for f in field_list:
-                if not self.employee_fields.get(f):
+                if not f.startswith('custom') and not self.employee_fields.get(f):
                     raise UserWarning("You passed in an invalid field")
                 else:
                     get_fields.append(f)
