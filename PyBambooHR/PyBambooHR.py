@@ -110,6 +110,7 @@ class PyBambooHR(object):
             "ethnicity": ("list", "The employee's ethnicity"),
             "exempt": ("list", "The FLSA employee exemption code (Exempt or Non-exempt)"),
             "firstName": ("text", "The employee's first name"),
+            "preferredName": ("text", "The employee's preferred name"),
             "flsaCode": ("list", "The employee's FLSA code. Ie: 'Exempt', 'Non-excempt'"),
             "fullName1": ("text", "Employee's first and last name. Example: John Doe. Ready only."),
             "fullName2": ("text", "Employee's last and first name. Example: Doe, John. Read only."),
