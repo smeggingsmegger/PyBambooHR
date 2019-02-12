@@ -89,7 +89,7 @@ Getting information that is scheduled in the future
 ```python
 from PyBambooHR import PyBambooHR
 
-bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere', onlyCurrent=False)
+bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere', only_current=False)
 
 ```
-BambooHR has effective dates for when promotions are scheduled to happen or when new hires are going to join the organization. In order to see these events before they happen using the BambooHR API set `onlyCurrent` to `False`. As a note, this only works for pulling reports and getting employee information. This does not work on getting the employee directory.
+BambooHR has effective dates for when promotions are scheduled to happen or when new hires are going to join the organization. In order to see these events before they happen using the BambooHR API set `only_current` to `False`. As a note, this only works for pulling reports and getting employee information. This does not work on getting the employee directory.

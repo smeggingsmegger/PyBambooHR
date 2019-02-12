@@ -35,11 +35,6 @@ class test_misc(unittest.TestCase):
         self.assertIn('<field id="firstName">Test</field>', xml)
         self.assertIn('<field id="lastName">Person</field>', xml)
 
-    def test_init_value_errors(self):
-        self.assertRaises(ValueError, PyBambooHR, {'subdomain': 'test'})
-        self.assertRaises(ValueError, PyBambooHR, {'api_key': 'testingnotrealapikey'})
-        self.assertIsNotNone(PyBambooHR(subdomain='test', api_key='testingnotrealapikey'))
-
     def test_xml(self):
         xml = """<?xml version="1.0"?>
                      <table>
