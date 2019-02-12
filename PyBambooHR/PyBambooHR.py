@@ -34,6 +34,7 @@ class PyBambooHR(object):
     and an optional datatype argument (defaults to JSON). This class implements
     methods for basic CRUD operations for employees and more.
     """
+
     def __init__(self, subdomain='', api_key='', datatype='JSON', underscore_keys=False, **kwargs):
         """
         Using the subdomain, __init__ initializes the base_url for our API calls.
@@ -69,6 +70,9 @@ class PyBambooHR(object):
 
         # Some people will want to use underscore keys for employee data...
         self.underscore_keys = underscore_keys
+
+        # Ask BambooHR for information that is scheduled in the future
+        self.only_current = kwargs.get('only_current', False)
 
         # We are focusing on JSON for now.
         if self.datatype == 'XML':
@@ -298,6 +302,11 @@ class PyBambooHR(object):
             'fields': ",".join(get_fields)
         }
 
+        if self.only_current == False:
+            payload.update({
+                'onlyCurrent': 'false'
+            })
+
         url = self.base_url + "employees/{0}".format(employee_id)
         r = requests.get(url, headers=self.headers, params=payload, auth=(self.api_key, ''))
         r.raise_for_status()
@@ -405,7 +414,7 @@ class PyBambooHR(object):
             raise UserWarning("You requested an invalid report type. Valid values are: {0}".format(','.join([k for k in self.report_formats])))
 
         filter_duplicates = 'yes' if filter_duplicates else 'no'
-        url = self.base_url + "reports/{0}?format={1}&fd={2}".format(report_id, report_format, filter_duplicates)
+        url = self.base_url + "reports/{0}?format={1}&fd={2}&onlyCurrent={3}".format(report_id, report_format, filter_duplicates, self.onlyCurrent)
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
