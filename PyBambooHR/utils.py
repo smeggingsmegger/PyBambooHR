@@ -63,6 +63,12 @@ def make_field_xml(id, value=None, pre='', post=''):
 
 
 def resolve_date_argument(arg):
+    # basestring is undefined: We are running Python 3
+    try:
+        basestring
+    except NameError:
+        basestring = str
+
     if isinstance(arg, (datetime.datetime, datetime.date)):
         return arg.strftime('%Y-%m-%d')
     elif isinstance(arg, basestring) and _date_regex.match(arg):

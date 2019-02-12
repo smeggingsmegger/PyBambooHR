@@ -23,6 +23,13 @@ try:
 except NameError:
     # unicode is undefined: We are running Python 3
     unicode = str
+
+    # basestring is undefined: We are running Python 3
+    try:
+        basestring
+    except NameError:
+        basestring = str
+
     basestring = (str, bytes)
 else:
     # unicode is defined: We are running Python 2
@@ -35,7 +42,8 @@ class PyBambooHR(object):
     and an optional datatype argument (defaults to JSON). This class implements
     methods for basic CRUD operations for employees and more.
     """
-    def __init__(self, subdomain='', api_key='', datatype='JSON', underscore_keys=False):
+
+    def __init__(self, subdomain='', api_key='', datatype='JSON', underscore_keys=False, **kwargs):
         """
         Using the subdomain, __init__ initializes the base_url for our API calls.
         This method also sets up some headers for our HTTP requests as well as our authentication (API key).
@@ -71,6 +79,9 @@ class PyBambooHR(object):
         # Some people will want to use underscore keys for employee data...
         self.underscore_keys = underscore_keys
 
+        # Ask BambooHR for information that is scheduled in the future
+        self.only_current = kwargs.get('only_current', False)
+
         # We are focusing on JSON for now.
         if self.datatype == 'XML':
             raise NotImplemented("Returning XML is not currently supported.")
@@ -86,6 +97,9 @@ class PyBambooHR(object):
             'xml': 'application/xml',
             'json': 'application/json'
         }
+
+        # Whether or not to verify user fields. Defaults to False.
+        self.verify_fields = kwargs.get('verify_fields', False)
 
         # These can be used as a reference for available fields, also used to validate
         # fields in get_employee and to grab all available data if no fields are passed in
@@ -108,6 +122,7 @@ class PyBambooHR(object):
             "ethnicity": ("list", "The employee's ethnicity"),
             "exempt": ("list", "The FLSA employee exemption code (Exempt or Non-exempt)"),
             "firstName": ("text", "The employee's first name"),
+            "preferredName": ("text", "The employee's preferred name"),
             "flsaCode": ("list", "The employee's FLSA code. Ie: 'Exempt', 'Non-excempt'"),
             "fullName1": ("text", "Employee's first and last name. Example: John Doe. Ready only."),
             "fullName2": ("text", "Employee's last and first name. Example: Doe, John. Read only."),
@@ -180,7 +195,7 @@ class PyBambooHR(object):
         """
         xml_fields = ''
         for key in employee:
-            if not self.employee_fields.get(key):
+            if not self.employee_fields.get(key) and self.verify_fields:
                 raise UserWarning("You passed in an invalid field")
             else:
                 xml_fields += make_field_xml(key, employee[key], pre='\t', post='\n')
@@ -203,7 +218,9 @@ class PyBambooHR(object):
         xml = "<row>\n{}</row>".format(xml_fields)
         return xml
 
-    def _format_report_xml(self, fields, title='My Custom Report', report_format='pdf'):
+    def _format_report_xml(
+            self, fields, title='My Custom Report', report_format='pdf',
+            last_changed=None):
         """
         Utility method for turning an employee dictionary into valid employee xml.
 
@@ -213,8 +230,16 @@ class PyBambooHR(object):
         for field in fields:
             xml_fields += make_field_xml(field, None, pre='\t\t', post='\n')
 
+        xml_filters = ''
+        if last_changed and isinstance(last_changed, datetime.datetime):
+            xml_filters = '''
+                <filters>
+                    <lastChanged includeNull="no">%s</lastChanged>
+                </filters>
+            ''' % last_changed.strftime('%Y-%m-%dT%H:%M:%SZ')
+
         # Really cheesy way to build XML... this should probably be replaced at some point.
-        xml = '''<report output="{0}">\n\t<title>{1}</title>\n\t<fields>\n{2}\t</fields>\n</report>'''.format(report_format, title, xml_fields)
+        xml = '''<report output="{0}">\n\t<title>{1}</title>\n\t{2}<fields>\n{3}\t</fields>\n</report>'''.format(report_format, title, xml_filters, xml_fields)
         return xml
 
     def add_employee(self, employee):
@@ -297,6 +322,11 @@ class PyBambooHR(object):
         payload = {
             'fields': ",".join(get_fields)
         }
+
+        if self.only_current == False:
+            payload.update({
+                'onlyCurrent': 'false'
+            })
 
         url = self.base_url + "employees/{0}".format(employee_id)
         r = requests.get(url, headers=self.headers, params=payload, auth=(self.api_key, ''))
@@ -469,7 +499,7 @@ class PyBambooHR(object):
             raise UserWarning("You requested an invalid report type. Valid values are: {0}".format(','.join([k for k in self.report_formats])))
 
         filter_duplicates = 'yes' if filter_duplicates else 'no'
-        url = self.base_url + "reports/{0}?format={1}&fd={2}".format(report_id, report_format, filter_duplicates)
+        url = self.base_url + "reports/{0}?format={1}&fd={2}&onlyCurrent={3}".format(report_id, report_format, filter_duplicates, self.onlyCurrent)
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
@@ -492,7 +522,9 @@ class PyBambooHR(object):
 
         return result
 
-    def request_custom_report(self, field_list, report_format='xls', title="My Custom Report", output_filename=None):
+    def request_custom_report(
+            self, field_list, report_format='xls', title="My Custom Report",
+            output_filename=None, last_changed=None):
         """
         API method for returning a custom report by field list.
         http://www.bamboohr.com/api/documentation/employees.php#requestCustomReport
@@ -520,7 +552,9 @@ class PyBambooHR(object):
             for field in self.employee_fields:
                 get_fields.append(field)
 
-        xml = self._format_report_xml(get_fields, title=title, report_format=report_format)
+        xml = self._format_report_xml(
+            get_fields, title=title, report_format=report_format,
+            last_changed=last_changed)
         url = self.base_url + "reports/custom/?format={0}".format(report_format)
         r = requests.post(url, data=xml, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
@@ -557,6 +591,41 @@ class PyBambooHR(object):
         r.raise_for_status()
 
         return utils.transform_tabular_data(r.content)
+
+    def get_employee_changed_table(self, table_name='jobInfo', since=None):
+        """
+        API method to retrieve tabular data for changed employee.
+        See http://www.bamboohr.com/api/documentation/tables.php for a list of available tables.
+
+        @return A dictionary with employee ID as key and a list of dictionaries, each dictionary showing
+        the values of the table's fields for a particular date, which is stored by key 'date' in the dictionary.
+        """
+        if not isinstance(since, datetime.datetime):
+            raise ValueError("Error: since argument must be a datetime.datetime instance")
+
+        url = 'employees/changed/tables/{}'.format(table_name)
+        params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
+        return self._query(url, params)
+
+    def get_employee_changes(self, since=None, _type=None):
+        """
+        Returns a list of dictionaries, each with id, action, and lastChanged keys, representing
+        the employee records that have changed since the datetime object passed in the since= argument.
+
+        @return List of dictionaries, each with id, action, and lastChanged keys.
+        """
+        if not isinstance(since, datetime.datetime):
+            raise ValueError("Error: since argument must be a datetime.datetime instance")
+
+        url = self.base_url + 'employees/changed/'
+        params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
+        if _type:
+            params.update({'type': _type})
+
+        r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return r.json()
 
     def get_whos_out(self, start_date=None, end_date=None):
         start_date = utils.resolve_date_argument(start_date)
