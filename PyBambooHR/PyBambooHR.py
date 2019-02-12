@@ -125,7 +125,6 @@ class PyBambooHR(object):
             "ethnicity": ("list", "The employee's ethnicity"),
             "exempt": ("list", "The FLSA employee exemption code (Exempt or Non-exempt)"),
             "firstName": ("text", "The employee's first name"),
-            "preferredName": ("text", "The employee's preferred name"),
             "flsaCode": ("list", "The employee's FLSA code. Ie: 'Exempt', 'Non-excempt'"),
             "fullName1": ("text", "Employee's first and last name. Example: John Doe. Ready only."),
             "fullName2": ("text", "Employee's last and first name. Example: Doe, John. Read only."),
@@ -146,7 +145,6 @@ class PyBambooHR(object):
             "middleName": ("text", "The employee's middle name"),
             "mobilePhone": ("phone", "The employee's mobile phone number"),
             "nickname": ("text", "The employee's nickname"),
-            "preferredName": ("text", "The employee's nickname"),
             "payChangeReason": ("list", "The reason for the employee's last pay rate change."),
             "payGroup": ("list", "The custom pay group that the employee belongs to."),
             "payGroupId": ("integer", "The id value corresponding to the pay group that an employee belongs to"),
@@ -391,24 +389,6 @@ class PyBambooHR(object):
         r.raise_for_status()
 
         return r.content, r.headers.get('content-type', '')
-
-    def get_employee_changes(self, since=None):
-        """
-        Returns a list of dictionaries, each with id, action, and lastChanged keys, representing
-        the employee records that have changed since the datetime object passed in the since= argument.
-
-        @return List of dictionaries, each with id, action, and lastChanged keys.
-        """
-        if not isinstance(since, datetime.datetime):
-            raise ValueError("Error: since argument must be a datetime.datetime instance")
-
-        url = self.base_url + 'employees/changed/'
-        params = {'since': since.strftime('%Y-%m-%dT%H:%M:%SZ')}
-        #r = requests.get(url, params=params, headers=self.headers, auth=(self.api_key, ''))
-        r = requests.get(url, timeout=self.timeout, params=params, auth=(self.api_key, ''))
-        r.raise_for_status()
-
-        return utils.transform_change_list(r.content)
 
     def get_employee_files(self, employee_id):
         """
