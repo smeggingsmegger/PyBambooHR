@@ -501,7 +501,7 @@ class PyBambooHR(object):
             raise UserWarning("You requested an invalid report type. Valid values are: {0}".format(','.join([k for k in self.report_formats])))
 
         filter_duplicates = 'yes' if filter_duplicates else 'no'
-        url = self.base_url + "reports/{0}?format={1}&fd={2}&onlyCurrent={3}".format(report_id, report_format, filter_duplicates, self.onlyCurrent)
+        url = self.base_url + "reports/{0}?format={1}&fd={2}&onlyCurrent={3}".format(report_id, report_format, filter_duplicates, self.only_current)
         r = requests.get(url, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
