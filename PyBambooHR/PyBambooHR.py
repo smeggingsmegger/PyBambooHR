@@ -34,7 +34,7 @@ class PyBambooHR(object):
     and an optional datatype argument (defaults to JSON). This class implements
     methods for basic CRUD operations for employees and more.
     """
-    def __init__(self, subdomain='', api_key='', datatype='JSON', underscore_keys=False):
+    def __init__(self, subdomain='', api_key='', datatype='JSON', underscore_keys=False, **kwargs):
         """
         Using the subdomain, __init__ initializes the base_url for our API calls.
         This method also sets up some headers for our HTTP requests as well as our authentication (API key).
@@ -85,6 +85,9 @@ class PyBambooHR(object):
             'xml': 'application/xml',
             'json': 'application/json'
         }
+
+        # Whether or not to verify user fields. Defaults to False.
+        self.verify_fields = kwargs.get('verify_fields', False)
 
         # These can be used as a reference for available fields, also used to validate
         # fields in get_employee and to grab all available data if no fields are passed in
@@ -176,7 +179,7 @@ class PyBambooHR(object):
         """
         xml_fields = ''
         for key in employee:
-            if not self.employee_fields.get(key):
+            if not self.employee_fields.get(key) and self.verify_fields:
                 raise UserWarning("You passed in an invalid field")
             else:
                 xml_fields += make_field_xml(key, employee[key], pre='\t', post='\n')
