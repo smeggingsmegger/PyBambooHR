@@ -428,6 +428,20 @@ class PyBambooHR(object):
             r = requests.post(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''), files=params)
             r.raise_for_status()
         return True
+    
+    def delete_employee_file(self, employee_id, file_id):
+        """
+        API method to delete a file data for an employee
+
+        @param employee_id: String of the employee id.
+        @param file_id: String of the file id.
+        """
+
+        url = self.base_url + "employees/{0}/files/{1}/".format(employee_id, file_id)
+        r = requests.delete(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return True
 
     def add_row(self, table_name, employee_id, row):
         """
