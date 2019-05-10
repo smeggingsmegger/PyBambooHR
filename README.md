@@ -93,3 +93,20 @@ bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere', only_current=
 
 ```
 BambooHR has effective dates for when promotions are scheduled to happen or when new hires are going to join the organization. In order to see these events before they happen using the BambooHR API set `only_current` to `False`. As a note, this only works for pulling reports and getting employee information. This does not work on getting the employee directory.
+
+
+Getting last changed
+```python
+from PyBambooHR import PyBambooHR
+
+bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
+
+# Date in ISO 8601, 15 minutes ago
+since_time = (datetime.datetime.now() - datetime.timedelta(minutes=15)).replace(microsecond=0)
+since_time_iso = since_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+result = get_last_changed(since_time_iso)
+
+```
+
+Note: Last change timestamps are a newer feature in BambooHR, and they only started recording these dates from June 5th, 2011.
