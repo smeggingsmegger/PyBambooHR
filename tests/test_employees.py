@@ -154,6 +154,23 @@ class test_employees(unittest.TestCase):
         self.assertEquals(employee['work_phone'], '555-555-5555')
 
     @httpretty.activate
+    def test_get_employee_custom_fields(self):
+        # Request custom fields
+        httpretty.register_uri(httpretty.GET, "https://api.bamboohr.com/api/gateway.php/test/v1/employees/123",
+                               body='{"customField": "custom value", "id": "123"}',
+                               content_type="application/json")
+
+        employee = self.bamboo.get_employee(123, ['customCustomField', ])
+        self.assertIsNotNone(employee)
+        self.assertEquals(employee['customField'], 'custom value')
+        self.assertEquals(employee['id'], '123')
+
+        employee = self.bamboo_u.get_employee(123, ['customCustomField', ])
+        self.assertIsNotNone(employee)
+        self.assertEquals(employee['custom_field'], 'custom value')
+        self.assertEquals(employee['id'], '123')
+
+    @httpretty.activate
     def test_get_employee_all_fields(self):
         # Request all fields
         # NOTE: We are mocking this so we aren't getting all fields- we are just adding city.
@@ -308,4 +325,3 @@ class test_employees(unittest.TestCase):
         result = self.bamboo.update_row('customTable', '333', '321', row)
 
         self.assertTrue(result)
-
