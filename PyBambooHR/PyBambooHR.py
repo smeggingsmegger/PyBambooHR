@@ -181,7 +181,6 @@ class PyBambooHR(object):
             "commisionDate": ("date", ""),
             "commissionAmount": ("currency", ""),
             "commissionComment": ("text", ""),
-            "commissionComment": ("text", ""),
             "benefitClassDate": ("date", ""),
             "benefitClassClass": ("list", ""),
             "benefitClassChangeReason": ("list", ""),
@@ -249,6 +248,7 @@ class PyBambooHR(object):
         """
         Utility method for turning dictionary of time_off request data into valid xml.
         https://www.bamboohr.com/api/documentation/time_off.php#addRequest
+        @param request_data: Dictionary containing incoming data for time off request
         """
         fields = ['status', 'start', 'end', 'timeOffTypeId', 'amount']
         xml = ''
