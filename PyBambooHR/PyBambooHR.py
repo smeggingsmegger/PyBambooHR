@@ -245,6 +245,34 @@ class PyBambooHR(object):
         xml = '''<report output="{0}">\n\t<title>{1}</title>\n\t{2}<fields>\n{3}\t</fields>\n</report>'''.format(report_format, title, xml_filters, xml_fields)
         return xml
 
+    def _format_time_off_xml(self, request_data):
+        """
+        Utility method for turning dictionary of time_off request data into valid xml.
+        https://www.bamboohr.com/api/documentation/time_off.php#addRequest
+        """
+        fields = ['status', 'start', 'end', 'timeOffTypeId', 'amount']
+        xml = ''
+        for f in fields:
+            value = request_data.get(f)
+            if value:
+                xml += '\n\t<{0}>{1}</{0}>'.format(f, value)
+
+        if request_data.get('notes') and len(request_data.get('notes')) > 0:
+            notes = ''
+            for n in request_data['notes']:
+                f = n.get('type', 'employee')
+                t = n.get('text', '')
+                notes += '\n\t\t<note from="{0}">{1}</note>\n'.format(f, t)
+            xml += '\n\t<notes>{0}\t</notes>'.format(notes)
+
+        if request_data.get('dates') and len(request_data.get('dates')) > 0:
+            dates = ''
+            for d in request_data['dates']:
+                dates += '\n\t\t<date ymd="{0}" amount="{1}" />\n'.format(d['ymd'], d['amount'])
+            xml += '\n\t<dates>{0}\t</dates>'.format(dates)
+
+        return '<request>{0}\n</request>'.format(xml)
+
     def add_employee(self, employee):
         """
         API method for creating a new employee from a dictionary.
@@ -645,11 +673,20 @@ class PyBambooHR(object):
         r = self._query('time_off/requests', params, raw=True)
         return r.json()
 
-    def create_time_off_request(self, employee_id):
-        url = self.base_url + 'employees/{0}/time_off/request/'.format(employee_id)
-        r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+    def create_time_off_request(self, data, raw=False):
+        url = self.base_url + 'employees/{0}/time_off/request/'.format(data.get('employee_id'))
+        xml = self._format_time_off_xml(data)
+        r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''), data=xml)
         r.raise_for_status()
-        return True # return new request data if poss
+        if raw:
+            return r
+        else:
+            return r.json()
+
+    def get_time_off_policies(self):
+        url = 'meta/time_off/policies/'
+        r = self._query(url, {})
+        return r
 
     def update_time_off_request(self, employee_id):
         url = self.base_url + 'employees/{0}/time_off/request/'.format(employee_id)
