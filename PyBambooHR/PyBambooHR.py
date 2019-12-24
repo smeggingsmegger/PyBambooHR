@@ -673,7 +673,61 @@ class PyBambooHR(object):
         r = self._query('time_off/requests', params, raw=True)
         return r.json()
 
+    def get_time_off_policies(self):
+        """
+        Api method for returning list of time off policies for a subdomain
+        https://www.bamboohr.com/api/documentation/time_off.php#getTimeOffPolicies
+        Success Response: 200
+        @return: List containing time off policies
+        """
+        url = 'meta/time_off/policies/'
+        r = self._query(url, {})
+        return r
+
+    def get_time_off_types(self):
+        """
+        Api method for returning list of time off types for a subdomain
+        https://www.bamboohr.com/api/documentation/time_off.php#getTimeOffTypes
+        Success Response: 200
+        @return: List containing time off types
+        """
+        url = 'meta/time_off/types/'
+        r = self._query(url, {})
+        return r
+
     def create_time_off_request(self, data, raw=False):
+        """
+        API method for creating a new time off request
+        https://www.bamboohr.com/api/documentation/time_off.php#addRequest
+        Success Response: 201
+        @return: A dictionary containing the created time off request
+        """
+        data['status'] = 'requested'
+        return self.update_time_off_request(data, raw)
+
+    def update_time_off_request(self, data, raw=False):
+        """
+        API method for creating or updating a new time off request
+        https://www.bamboohr.com/api/documentation/time_off.php#addRequest
+        @param data = {
+            'status': 'requested',
+            'employee_id': '113',
+            'start': '2040-02-01',
+            'end': '2040-02-02',
+            'timeOffTypeId': '78',
+            'amount': '2',
+            'dates': [
+                { 'ymd': '2040-02-01', 'amount': '1' },
+                { 'ymd': '2040-02-02', 'amount': '1' }
+            ],
+            'notes': [
+                { 'type': 'employee', 'text': 'Going overseas with family' },
+                { 'type': 'manager', 'text': 'Enjoy!' }
+            ]
+        }
+        Success Response: 201
+        @return: A dictionary containing the created/updated time off request
+        """
         url = self.base_url + 'employees/{0}/time_off/request/'.format(data.get('employee_id'))
         xml = self._format_time_off_xml(data)
         r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''), data=xml)
@@ -683,20 +737,18 @@ class PyBambooHR(object):
         else:
             return r.json()
 
-    def get_time_off_policies(self):
-        url = 'meta/time_off/policies/'
-        r = self._query(url, {})
-        return r
-
-    def update_time_off_request(self, employee_id):
-        url = self.base_url + 'employees/{0}/time_off/request/'.format(employee_id)
-        r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
-        r.raise_for_status()
-        return True
-
-    def update_time_off_request_status(self, request_id):
-        url = self.base_url + '/time_off/requests/{0}/status/'.format(request_id)
-        r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+    def update_time_off_request_status(self, request_id, data, raw=False):
+        """
+        https://www.bamboohr.com/api/documentation/time_off.php#changeRequest
+        Success Response: 200
+        @param data = d = {
+            'status': 'denied',
+            'note': 'have fun!'
+        }
+        @return: Boolean of request success (Status Code == 200).
+        """
+        url = self.base_url + 'time_off/requests/{0}/status/'.format(request_id)
+        r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''), json=data)
         r.raise_for_status()
         return True
 
