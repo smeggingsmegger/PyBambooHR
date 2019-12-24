@@ -93,3 +93,37 @@ bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere', only_current=
 
 ```
 BambooHR has effective dates for when promotions are scheduled to happen or when new hires are going to join the organization. In order to see these events before they happen using the BambooHR API set `only_current` to `False`. As a note, this only works for pulling reports and getting employee information. This does not work on getting the employee directory.
+
+Handle time off requests:
+- create a time off request
+```py
+from PyBambooHR import PyBambooHR
+
+bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
+data = {
+    'status': 'requested',
+    'employee_id': '113',
+    'start': '2040-02-01',
+    'end': '2040-02-02',
+    'timeOffTypeId': '78', # check your companies valid timeOffTypeId values using  bamboo.get_time_off_policies or bamboo.get_time_off_types
+    'amount': '2',
+    'dates': [
+        { 'ymd': '2040-02-01', 'amount': '1' },
+        { 'ymd': '2040-02-02', 'amount': '1' }
+    ],
+    'notes': [
+        { 'type': 'employee', 'text': 'Going overseas with family' },
+        { 'type': 'manager', 'text': 'Enjoy!' }
+    ]
+}
+time_off_request = bamboo.create_time_off_request(data)
+```
+- update a requests status
+```py
+data = {
+    'status': 'declined',
+    'note': 'have fun!'
+}
+request_id = 222
+bamboo.update_time_off_request_status(request_id, data)
+```
