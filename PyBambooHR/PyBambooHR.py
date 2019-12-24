@@ -262,14 +262,14 @@ class PyBambooHR(object):
             for n in request_data['notes']:
                 f = n.get('type', 'employee')
                 t = n.get('text', '')
-                notes += '\n\t\t<note from="{0}">{1}</note>\n'.format(f, t)
-            xml += '\n\t<notes>{0}\t</notes>'.format(notes)
+                notes += '\n\t\t<note from="{0}">{1}</note>'.format(f, t)
+            xml += '\n\t<notes>{0}\n\t</notes>'.format(notes)
 
         if request_data.get('dates') and len(request_data.get('dates')) > 0:
             dates = ''
             for d in request_data['dates']:
-                dates += '\n\t\t<date ymd="{0}" amount="{1}" />\n'.format(d['ymd'], d['amount'])
-            xml += '\n\t<dates>{0}\t</dates>'.format(dates)
+                dates += '\n\t\t<date ymd="{0}" amount="{1}" />'.format(d['ymd'], d['amount'])
+            xml += '\n\t<dates>{0}\n\t</dates>'.format(dates)
 
         return '<request>{0}\n</request>'.format(xml)
 
