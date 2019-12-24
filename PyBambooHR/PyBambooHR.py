@@ -627,15 +627,14 @@ class PyBambooHR(object):
         return r.json()
         # return utils.transform_whos_out(r.content)
 
-    def get_time_off_requests(self, start_date=None, end_date=None, status=None, type=None, employee_id=None):
+    # must set start + end or response = 400 Bad Request
+    def get_time_off_requests(self, start_date='0000-01-01', end_date='9999-01-01', status=None, type=None, employee_id=None):
         start_date = utils.resolve_date_argument(start_date)
         end_date = utils.resolve_date_argument(end_date)
 
         params = {}
-        if start_date:
-            params['start'] = start_date
-        if end_date:
-            params['end'] = end_date
+        params['start'] = start_date
+        params['end'] = end_date
         if status:
             params['status'] = status
         if type:
@@ -645,7 +644,6 @@ class PyBambooHR(object):
 
         r = self._query('time_off/requests', params, raw=True)
         return r.json()
-        # return utils.transform_time_off(r.content)
 
     def create_time_off_request(self, employee_id):
         url = self.base_url + 'employees/{0}/time_off/request/'.format(employee_id)
