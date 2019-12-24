@@ -647,6 +647,24 @@ class PyBambooHR(object):
         return r.json()
         # return utils.transform_time_off(r.content)
 
+    def create_time_off_request(self, employee_id):
+        url = self.base_url + 'employees/{0}/time_off/request/'.format(employee_id)
+        r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+        return True # return new request data if poss
+
+    def update_time_off_request(self, employee_id):
+        url = self.base_url + 'employees/{0}/time_off/request/'.format(employee_id)
+        r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+        return True
+
+    def update_time_off_request_status(self, request_id):
+        url = self.base_url + '/time_off/requests/{0}/status/'.format(request_id)
+        r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+        return True
+
     def get_meta_fields(self):
         """
         API method for returning a list of fields info.
