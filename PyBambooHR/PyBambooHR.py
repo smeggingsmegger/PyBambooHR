@@ -726,7 +726,7 @@ class PyBambooHR(object):
         Success Response: 201
         @return: A dictionary containing the created/updated time off request
         """
-        url = self.base_url + 'employees/{0}/time_off/request/'.format(data.get('employee_id'))
+        url = self.base_url + 'employees/{0}/time_off/request'.format(data.get('employee_id'))
         xml = self._format_time_off_xml(data)
         r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''), data=xml)
         r.raise_for_status()
@@ -745,7 +745,7 @@ class PyBambooHR(object):
         }
         @return: Boolean of request success (Status Code == 200).
         """
-        url = self.base_url + 'time_off/requests/{0}/status/'.format(request_id)
+        url = self.base_url + 'time_off/requests/{0}/status'.format(request_id)
         r = requests.put(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''), json=data)
         r.raise_for_status()
         return True

@@ -61,3 +61,47 @@ class test_time_off(unittest.TestCase):
         self.assertTrue(len(response) > 0)
         self.assertEquals(response[0]['id'], '78')
         return
+
+    @httpretty.activate
+    def test_create_time_off_request(self):
+        body = {'id': '1675', 'employeeId': '111', 'start': '2040-02-01', 'end': '2040-02-02', 'created': '2019-12-24', 'status': {'status': 'requested', 'lastChanged': '2019-12-24 02:29:45', 'lastChangedByUserId': '2479'}, 'name': 'xdd xdd', 'type': {'id': '78', 'name': 'Vacation'}, 'amount': {'unit': 'hours', 'amount': '2'}, 'notes': {'employee': 'Going overseas with family', 'manager': 'Enjoy!'}, 'dates': {'2040-02-01': '1', '2040-02-02': '1'}, 'comments': [{'employeeId': '111', 'comment': 'Enjoy!', 'commentDate': '2019-12-24', 'commenterName': 'Test use'}], 'approvers': [{'userId': '2479', 'displayName': 'Test user', 'employeeId': '111', 'photoUrl': 'https://resources.bamboohr.com/employees/photos/initials.php?initials=testuser'}], 'actions': {'view': True, 'edit': True, 'cancel': True, 'approve': True, 'deny': True, 'bypass': True}, 'policyType': 'discretionary', 'usedYearToDate': 0, 'balanceOnDateOfRequest': 0}
+        httpretty.register_uri(httpretty.PUT,
+            "https://api.bamboohr.com/api/gateway.php/test/v1/employees/111/time_off/request",
+            body=dumps(body),
+            content_type="application/json")
+        data = {
+            'status': 'requested',
+            'employee_id': '111',
+            'start': '2040-02-01',
+            'end': '2040-02-02',
+            'timeOffTypeId': '78',
+            'amount': '2',
+            'dates': [
+                { 'ymd': '2040-02-01', 'amount': '1' },
+                { 'ymd': '2040-02-02', 'amount': '1' }
+            ],
+            'notes': [
+                { 'type': 'employee', 'text': 'Going overseas with family' },
+                { 'type': 'manager', 'text': 'Enjoy!' }
+            ]
+        }
+        response = self.bamboo.create_time_off_request(data)
+        self.assertIsNotNone(response)
+        self.assertEquals(response['id'], '1675')
+        return
+
+    @httpretty.activate
+    def test_update_time_off_request_status(self):
+        body = {'id': '1675', 'employeeId': '111', 'start': '2040-02-01', 'end': '2040-02-02', 'created': '2019-12-24', 'status': {'status': 'declined', 'lastChanged': '2019-12-24 02:29:45', 'lastChangedByUserId': '2479'}, 'name': 'xdd xdd', 'type': {'id': '78', 'name': 'Vacation'}, 'amount': {'unit': 'hours', 'amount': '2'}, 'notes': {'employee': 'Going overseas with family', 'manager': 'Enjoy!'}, 'dates': {'2040-02-01': '1', '2040-02-02': '1'}, 'comments': [{'employeeId': '111', 'comment': 'Enjoy!', 'commentDate': '2019-12-24', 'commenterName': 'Test use'}], 'approvers': [{'userId': '2479', 'displayName': 'Test user', 'employeeId': '111', 'photoUrl': 'https://resources.bamboohr.com/employees/photos/initials.php?initials=testuser'}], 'actions': {'view': True, 'edit': True, 'cancel': True, 'approve': True, 'deny': True, 'bypass': True}, 'policyType': 'discretionary', 'usedYearToDate': 0, 'balanceOnDateOfRequest': 0}
+        httpretty.register_uri(httpretty.PUT,
+            "https://api.bamboohr.com/api/gateway.php/test/v1/time_off/requests/1675/status",
+            body=dumps(body),
+            content_type="application/json")
+        data = {
+            'status': 'declined',
+            'note': 'Have fun!'
+        }
+        response = self.bamboo.update_time_off_request_status(body['id'] ,data)
+        self.assertIsNotNone(response)
+        self.assertTrue(response)
+        return
