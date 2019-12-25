@@ -656,6 +656,12 @@ class PyBambooHR(object):
         # return utils.transform_whos_out(r.content)
 
     def get_time_off_requests(self, start_date=None, end_date=None, status=None, type=None, employee_id=None):
+        """
+        API method for returning a list of time off requests
+        https://www.bamboohr.com/api/documentation/time_off.php#getRequests
+        Success response: 200
+        @return: List containing time off request dictionaries
+        """
         start_date = utils.resolve_date_argument(start_date)
         end_date = utils.resolve_date_argument(end_date)
 
