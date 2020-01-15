@@ -215,7 +215,7 @@ class PyBambooHR(object):
         @param employee: Dictionary containing row data information.
         """
         xml_fields = ''
-        for k, v in row.iteritems():
+        for k, v in row.items():
             xml_fields += make_field_xml(k, v, pre='\t', post='\n')
 
         xml = "<row>\n{}</row>".format(xml_fields)
@@ -401,9 +401,9 @@ class PyBambooHR(object):
         url = self.base_url + "employees/{0}/files/view/".format(employee_id)
         r = requests.get(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
-        data = utils.transform_table_data(r.content)
+        data = r.json()
 
-        return data['employee']
+        return data
 
     def upload_employee_file(self, employee_id, file_path, category_id, share, override_file_name=None):
         """
@@ -419,7 +419,7 @@ class PyBambooHR(object):
         file_name = override_file_name if override_file_name else basename(file_path)
 
         with open(file_path, "rb") as f:
-            params = {"file": f,
+            params = {"file": "file": (file_name, f, 'application/pdf'),
                       "fileName": (None, file_name),
                       "category": (None, str(category_id)),
                       "share": (None, "yes" if share else "no")}
@@ -428,7 +428,7 @@ class PyBambooHR(object):
             r = requests.post(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''), files=params)
             r.raise_for_status()
         return True
-    
+
     def delete_employee_file(self, employee_id, file_id):
         """
         API method to delete a file data for an employee
