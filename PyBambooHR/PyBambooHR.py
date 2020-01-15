@@ -419,7 +419,7 @@ class PyBambooHR(object):
         file_name = override_file_name if override_file_name else basename(file_path)
 
         with open(file_path, "rb") as f:
-            params = {"file": "file": (file_name, f, 'application/pdf'),
+            params = {"file": (file_name, f, 'application/pdf'),
                       "fileName": (None, file_name),
                       "category": (None, str(category_id)),
                       "share": (None, "yes" if share else "no")}
