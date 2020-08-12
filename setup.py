@@ -46,13 +46,14 @@ if os.path.exists('README.txt'):
 
 setup(
     name='PyBambooHR',
-    version='0.8.0',
+    version='0.8.1',
     url='http://github.com/smeggingsmegger/PyBambooHR',
     license='MIT',
     author='Scott Blevins',
     author_email='sblevins@gmail.com',
     description='A Python wrapper for the Bamboo HR API',
     long_description= long_description+'\n'+read('CHANGES'),
+    long_description_content_type='text/markdown',
     platforms='OS Independent',
     packages=['PyBambooHR'],
     include_package_data=True,
