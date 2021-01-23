@@ -9,7 +9,7 @@ The library makes use of the [requests](http://docs.python-requests.org/en/lates
 Using this library is very simple:
 
 ```python
-from PyBambooHR import PyBambooHR
+from PyBambooHR.PyBambooHR import PyBambooHR
 
 bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
 
@@ -22,7 +22,7 @@ This will give you a list of employees with properties on each including their I
 
 
 ```python
-from PyBambooHR import PyBambooHR
+from PyBambooHR.PyBambooHR import PyBambooHR
 
 bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
 
@@ -37,7 +37,7 @@ pam = bamboo.get_employee(222, ['city', 'workPhone', 'workEmail'])
 Adding an employee
 
 ```python
-from PyBambooHR import PyBambooHR
+from PyBambooHR.PyBambooHR import PyBambooHR
 
 bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
 
@@ -53,7 +53,7 @@ The result dict will contain id and location. "id" is the numerical BambooHR emp
 Updating an employee
 
 ```python
-from PyBambooHR import PyBambooHR
+from PyBambooHR.PyBambooHR import PyBambooHR
 
 bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
 
@@ -70,7 +70,7 @@ result will be True or False depending on if it succeeded.
 Requesting a Report
 
 ```python
-from PyBambooHR import PyBambooHR
+from PyBambooHR.PyBambooHR import PyBambooHR
 
 bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere')
 
@@ -87,7 +87,7 @@ result = bamboo.request_company_report(1, format='pdf', output_file='/tmp/report
 ```
 Getting information that is scheduled in the future
 ```python
-from PyBambooHR import PyBambooHR
+from PyBambooHR.PyBambooHR import PyBambooHR
 
 bamboo = PyBambooHR(subdomain='yoursub', api_key='yourapikeyhere', only_current=False)
 
