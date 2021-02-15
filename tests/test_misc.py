@@ -140,3 +140,70 @@ class test_misc(unittest.TestCase):
                           'row_id': '999'}]}
 
         self.assertEqual(table, utils.transform_tabular_data(xml))
+
+    def test_transform_json_tabular_data(self):
+        json_data = [
+            [
+                {
+                    "id": 321,
+                    "employeeId": 123,
+                    "customFieldA": "123 Value A",
+                    "customFieldB": "123 Value B",
+                },
+                {
+                    "id": 999,
+                    "employeeId": 321,
+                    "customFieldA": "321 & Value A",
+                }
+            ]
+        ]
+        table = {'123': [{
+                         'customFieldA': '123 Value A',
+                         'customFieldB': '123 Value B',
+                         'row_id': '321'}],
+                 '321': [{
+                         'customFieldA': '321 & Value A',
+                         'row_id': '999'}]}
+        self.assertEqual(table, utils.transform_json_tabular_data(json_data))
+
+    def test_transform_json_tabular_data_single_row(self):
+        json_data = [
+            [
+                {
+                    "id": 321,
+                    "employeeId": 123,
+                    "customFieldA": "123 Value A",
+                }
+            ]
+        ]
+        table = {'123': [{'customFieldA': '123 Value A', 'row_id': '321'}]}
+        self.assertEqual(table, utils.transform_json_tabular_data(json_data))
+
+    def test_transform_json_tabular_data_empty_table(self):
+        json_data = [[{}]]
+        table = {}
+        self.assertEqual(table, utils.transform_json_tabular_data(json_data))
+
+    def test_transform_json_tabular_data_empty_field(self):
+        json_data = [
+            [
+                {
+                    "id": 321,
+                    "employeeId": 123,
+                    "customFieldA": "123 Value A",
+                    "customFieldC": None,
+                },
+                {
+                    "id": 999,
+                    "employeeId": 321,
+                    "customFieldB": "321 Value B",
+                }
+            ]
+        ]
+        table = {'123': [{'customFieldA': '123 Value A',
+                          'customFieldC': None,
+                          'row_id': '321'}],
+                 '321': [{'customFieldB': '321 Value B',
+                          'row_id': '999'}]}
+
+        self.assertEqual(table, utils.transform_json_tabular_data(json_data))

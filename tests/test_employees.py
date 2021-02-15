@@ -239,18 +239,21 @@ class test_employees(unittest.TestCase):
 
     @httpretty.activate
     def test_get_tabular_data(self):
-        xml = """<?xml version="1.0"?>
-                 <table>
-                     <row id="321" employeeId="123">
-                         <field id="customTypeA">Value A</field>
-                         <field id="customTypeB">Value B</field>
-                         <field id="customTypeC">Value C</field>
-                     </row>
-                 </table>"""
+        json_data = """[
+            [
+                {
+                    "id": 321,
+                    "employeeId": 123,
+                    "customTypeA": "Value A",
+                    "customTypeB": "Value B",
+                    "customTypeC": "Value C"
+                }
+            ]
+        ]"""
         httpretty.register_uri(httpretty.GET,
                                "https://api.bamboohr.com/api/gateway.php/test/v1/employees/123/tables/customTable",
-                               body=xml,
-                               content_type="application/xml")
+                               body=json_data,
+                               content_type="application/json")
         table = self.bamboo.get_tabular_data('customTable', 123)
         d = {'123': [{'customTypeA': 'Value A',
                       'customTypeB': 'Value B',
@@ -262,23 +265,28 @@ class test_employees(unittest.TestCase):
 
     @httpretty.activate
     def test_get_tabular_data_all_employees(self):
-        xml = """<?xml version="1.0"?>
-                 <table>
-                     <row id="321" employeeId="123">
-                         <field id="customTypeA">Value A</field>
-                         <field id="customTypeB">Value B</field>
-                         <field id="customTypeC">Value C</field>
-                     </row>
-                     <row id="322" employeeId="333">
-                         <field id="customTypeA">333 Value A</field>
-                         <field id="customTypeB">333 Value B</field>
-                         <field id="customTypeC">333 Value C</field>
-                     </row>
-                 </table>"""
+        json_data = """[
+            [
+                {
+                    "id": 321,
+                    "employeeId": 123,
+                    "customTypeA": "Value A",
+                    "customTypeB": "Value B",
+                    "customTypeC": "Value C"
+                },
+                {
+                    "id": 322,
+                    "employeeId": 333,
+                    "customTypeA": "333 Value A",
+                    "customTypeB": "333 Value B",
+                    "customTypeC": "333 Value C"
+                }
+            ]
+        ]"""
         httpretty.register_uri(httpretty.GET,
                                "https://api.bamboohr.com/api/gateway.php/test/v1/employees/all/tables/customTable",
-                               body=xml,
-                               content_type="application/xml")
+                               body=json_data,
+                               content_type="application/json")
         table = self.bamboo.get_tabular_data('customTable')
         d = {'123': [{'customTypeA': 'Value A',
                       'customTypeB': 'Value B',
@@ -288,7 +296,6 @@ class test_employees(unittest.TestCase):
                       'customTypeB': '333 Value B',
                       'customTypeC': '333 Value C',
                       'row_id': '322'}]}
-
         self.assertIsNotNone(table)
         self.assertEqual(d, table)
 

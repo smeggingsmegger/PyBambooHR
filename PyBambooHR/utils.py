@@ -113,6 +113,45 @@ def transform_tabular_data(xml_input):
         by_employee_id.setdefault(eid, []).append(fields)
     return by_employee_id
 
+def transform_json_tabular_data(json_input):
+    """
+    Converts table data (json) from BambooHR into a dictionary with employee
+    id as key and a list of dictionaries.
+    Each field is a dict with the id as the key and inner text as the value
+    e.g.
+        [
+            [
+                {'id': 321, 'employeeId': 123, 'customFieldA': '123 Value A',
+                 'customFieldC': ''}
+            ],
+            [
+                {'id': 999, 'employeeId': 321, 'customFieldA': '321 Value A'}
+            ]
+        ]
+    becomes
+        {'123': [{
+                 'customFieldA': '123 Value A',
+                 'customFieldB': '123 Value B',
+                 'row_id': '321'}],
+         '321': [{
+                 'customFieldA': '321 Value A',
+                 'row_id': '999'}]}
+    """
+    by_employee_id = {}
+
+    for user in json_input:
+        for row in user:
+            print(row)
+            try:
+                eid = row.pop('employeeId')
+            except KeyError:
+                continue
+            row['row_id'] = str(row.pop('id'))
+
+            by_employee_id.setdefault(str(eid), []).append(row)
+
+    return by_employee_id
+
 def transform_table_data(xml_input):
     """
     Converts table data (xml) from BambooHR into a dictionary or list

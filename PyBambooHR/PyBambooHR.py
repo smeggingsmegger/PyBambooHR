@@ -575,7 +575,7 @@ class PyBambooHR(object):
         r = requests.get(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
-        return utils.transform_tabular_data(r.content)
+        return utils.transform_json_tabular_data(r.json())
 
     def get_employee_changed_table(self, table_name='jobInfo', since=None):
         """
