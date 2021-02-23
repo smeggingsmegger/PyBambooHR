@@ -141,7 +141,6 @@ def transform_json_tabular_data(json_input):
 
     for user in json_input:
         for row in user:
-            print(row)
             try:
                 eid = row.pop('employeeId')
             except KeyError:
