@@ -71,7 +71,7 @@ def resolve_date_argument(arg):
 
     if isinstance(arg, (datetime.datetime, datetime.date)):
         return arg.strftime('%Y-%m-%d')
-    elif isinstance(arg, basestring) and _date_regex.match(arg):
+    elif isinstance(arg, str) and _date_regex.match(arg):
         return arg
     elif arg is None:
         return None
@@ -232,7 +232,7 @@ def change_keys(obj):
 
     if isinstance(obj, dict):
         new = {}
-        for k, v in obj.items():
+        for k, v in list(obj.items()):
             new[convert(k)] = change_keys(v)
     elif isinstance(obj, list):
         new = []

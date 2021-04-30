@@ -127,13 +127,13 @@ class test_employees(unittest.TestCase):
 
         employees = self.bamboo.get_employee_directory()
         self.assertIsNotNone(employees[0])
-        self.assertEquals('123', employees[0]['id'])
-        self.assertEquals('test@testperson.com', employees[0]['workEmail'])
+        self.assertEqual('123', employees[0]['id'])
+        self.assertEqual('test@testperson.com', employees[0]['workEmail'])
 
         employees = self.bamboo_u.get_employee_directory()
         self.assertIsNotNone(employees[0])
-        self.assertEquals('123', employees[0]['id'])
-        self.assertEquals('test@testperson.com', employees[0]['work_email'])
+        self.assertEqual('123', employees[0]['id'])
+        self.assertEqual('test@testperson.com', employees[0]['work_email'])
 
     @httpretty.activate
     def test_get_employee_specific_fields(self):
@@ -144,14 +144,14 @@ class test_employees(unittest.TestCase):
 
         employee = self.bamboo.get_employee(123, ['workPhone', 'workEmail'])
         self.assertIsNotNone(employee)
-        self.assertEquals(employee['workEmail'], 'user@test.com')
-        self.assertEquals(employee['workPhone'], '555-555-5555')
-        self.assertEquals(employee['id'], '123')
+        self.assertEqual(employee['workEmail'], 'user@test.com')
+        self.assertEqual(employee['workPhone'], '555-555-5555')
+        self.assertEqual(employee['id'], '123')
 
         employee = self.bamboo_u.get_employee(123, ['workPhone', 'workEmail'])
         self.assertIsNotNone(employee)
-        self.assertEquals(employee['work_email'], 'user@test.com')
-        self.assertEquals(employee['work_phone'], '555-555-5555')
+        self.assertEqual(employee['work_email'], 'user@test.com')
+        self.assertEqual(employee['work_phone'], '555-555-5555')
 
     @httpretty.activate
     def test_get_employee_custom_fields(self):
@@ -162,13 +162,13 @@ class test_employees(unittest.TestCase):
 
         employee = self.bamboo.get_employee(123, ['customCustomField', ])
         self.assertIsNotNone(employee)
-        self.assertEquals(employee['customField'], 'custom value')
-        self.assertEquals(employee['id'], '123')
+        self.assertEqual(employee['customField'], 'custom value')
+        self.assertEqual(employee['id'], '123')
 
         employee = self.bamboo_u.get_employee(123, ['customCustomField', ])
         self.assertIsNotNone(employee)
-        self.assertEquals(employee['custom_field'], 'custom value')
-        self.assertEquals(employee['id'], '123')
+        self.assertEqual(employee['custom_field'], 'custom value')
+        self.assertEqual(employee['id'], '123')
 
     @httpretty.activate
     def test_get_employee_all_fields(self):
@@ -180,10 +180,10 @@ class test_employees(unittest.TestCase):
 
         employee = self.bamboo.get_employee(123)
         self.assertIsNotNone(employee)
-        self.assertEquals(employee['workEmail'], 'user@test.com')
-        self.assertEquals(employee['workPhone'], '555-555-5555')
-        self.assertEquals(employee['city'], 'Testville')
-        self.assertEquals(employee['id'], '123')
+        self.assertEqual(employee['workEmail'], 'user@test.com')
+        self.assertEqual(employee['workPhone'], '555-555-5555')
+        self.assertEqual(employee['city'], 'Testville')
+        self.assertEqual(employee['id'], '123')
 
     @httpretty.activate
     def test_add_employee(self):

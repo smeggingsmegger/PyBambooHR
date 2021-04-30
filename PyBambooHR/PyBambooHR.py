@@ -215,7 +215,7 @@ class PyBambooHR(object):
         @param employee: Dictionary containing row data information.
         """
         xml_fields = ''
-        for k, v in row.iteritems():
+        for k, v in row.items():
             xml_fields += make_field_xml(k, v, pre='\t', post='\n')
 
         xml = "<row>\n{}</row>".format(xml_fields)
@@ -356,7 +356,7 @@ class PyBambooHR(object):
 
             users = {}
             # get all employees (doesn't get whom don't have activity)
-            for u in self.get_meta_users().values():
+            for u in list(self.get_meta_users().values()):
                 users[str(u['employeeId'])] = True if u['status']=='enabled' else False
             # get all enabled employees (included whom don't have activity, but are enabled)
             for u in self.get_employee_directory():
@@ -364,11 +364,11 @@ class PyBambooHR(object):
 
             # filter enabled/active employees
             if not disabledUsers:
-                users = {k:v for k,v in users.items() if v}
+                users = {k:v for k,v in list(users.items()) if v}
 
             # get employees data according to field_list
             for i,uKey in enumerate(users.keys()):
-                if uKey not in self.employees.keys():
+                if uKey not in list(self.employees.keys()):
                     self.employees[uKey] = self.get_employee(uKey, field_list=field_list)
 
         return self.employees
