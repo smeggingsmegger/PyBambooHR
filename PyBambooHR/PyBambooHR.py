@@ -14,7 +14,7 @@ import datetime
 import requests
 from . import utils
 from . import config
-from .utils import make_field_xml
+from .utils import camelcase_keys, make_field_xml, underscore_keys, underscore_to_camelcase
 from os.path import basename
 
 # Python 3 basestring compatibility:
