@@ -627,7 +627,7 @@ class PyBambooHR(object):
         return r.json()
         # return utils.transform_whos_out(r.content)
 
-    def get_time_off_requests(self, start_date=None, end_date=None, status=None, type=None, employee_id=None):
+    def get_time_off_requests(self, start_date=None, end_date=None, status=None, type=None, employee_id=None, action=None):
         start_date = utils.resolve_date_argument(start_date)
         end_date = utils.resolve_date_argument(end_date)
 
@@ -642,6 +642,8 @@ class PyBambooHR(object):
             params['type'] = type
         if employee_id:
             params['employeeId'] = employee_id
+        if action:
+            params['action'] = action
 
         r = self._query('time_off/requests', params, raw=True)
         return r.json()
