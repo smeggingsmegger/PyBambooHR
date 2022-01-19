@@ -134,6 +134,7 @@ class PyBambooHR(object):
             "displayName": ("text", "employee's name displayed in a format configured by the user. Read only"),
             "gender": ("gender", "The employee's gender. Legal values are 'Male', 'Female'"),
             "hireDate": ("date", "The date the employee was hired"),
+            "originalHireDate": ("date", "The date the employee was originally hired"),
             "homeEmail": ("email", "The employee's home email address"),
             "homePhone": ("phone", "The employee's home phone number"),
             "id": ("integer", "Employee id (automatically assigned by BambooHR). Not editable."),
