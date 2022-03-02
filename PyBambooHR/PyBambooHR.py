@@ -712,6 +712,30 @@ class PyBambooHR(object):
 
         return r.json()
 
+    def get_last_changed(self, iso_timestamp):
+        """
+        API method for discovering which employees have been recently added, changed or deleted.
+        https://www.bamboohr.com/api/documentation/changes.php
+        @param iso_timestamp: get last changed since this ISO 8601 timestamp
+
+        @return: dictionary with employees which have been changed recently
+        """
+
+        url = self.base_url + "employees/changed/"
+        payload = {
+            'since': "{}".format(iso_timestamp)
+        }
+        # Convert payload to stop percent encoding the URL for requests
+        payload_str = "&".join("%s=%s" % (k,v) for k,v in payload.items())
+
+        r = requests.get(url, timeout=self.timeout, headers=self.headers, params=payload_str, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        last_changed = r.json()
+
+        return last_changed
+
+
     def _query(self, url, params, raw=False):
         url = self.base_url + url
         r = requests.get(url, timeout=self.timeout, params=params, headers=self.headers, auth=(self.api_key, ''))
