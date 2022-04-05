@@ -572,7 +572,13 @@ class PyBambooHR(object):
         the values of the table's fields for a particular date, which is stored by key 'date' in the dictionary.
         """
         url = self.base_url + 'employees/{}/tables/{}'.format(employee_id, table_name)
-        r = requests.get(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+
+        # The default initialization for instances of this class sets the Accept header to application/json. The
+        # transform_tabular_data utility function that is used to parse the response expects XML content.
+        headers=self.headers.copy()
+        headers['Accept'] = 'application/xml'
+
+        r = requests.get(url, timeout=self.timeout, headers=headers, auth=(self.api_key, ''))
         r.raise_for_status()
 
         return utils.transform_tabular_data(r.content)
