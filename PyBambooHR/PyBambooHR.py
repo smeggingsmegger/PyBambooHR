@@ -12,6 +12,7 @@ to BambooHR API calls defined at http://www.bamboohr.com/api/documentation/.
 
 import datetime
 import requests
+import copy
 from . import utils
 from . import config
 from .utils import make_field_xml
@@ -87,7 +88,7 @@ class PyBambooHR(object):
 
         # We are focusing on JSON for now.
         if self.datatype == 'XML':
-            raise NotImplemented("Returning XML is not currently supported.")
+            raise NotImplementedError("Returning XML is not currently supported.")
 
         if self.datatype == 'JSON':
             self.headers.update({'Accept': 'application/json'})
@@ -180,7 +181,6 @@ class PyBambooHR(object):
             "bonusComment": ("text", ""),
             "commisionDate": ("date", ""),
             "commissionAmount": ("currency", ""),
-            "commissionComment": ("text", ""),
             "commissionComment": ("text", ""),
             "benefitClassDate": ("date", ""),
             "benefitClassClass": ("list", ""),
@@ -572,10 +572,15 @@ class PyBambooHR(object):
         the values of the table's fields for a particular date, which is stored by key 'date' in the dictionary.
         """
         url = self.base_url + 'employees/{}/tables/{}'.format(employee_id, table_name)
-        r = requests.get(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+        
+        #Make a copy of headers and replace JSON with XML
+        xmlheaders = copy.copy(self.headers)
+        xmlheaders.update({'Accept': 'application/xml'})
+        
+        r = requests.get(url, timeout=self.timeout, headers=xmlheaders, auth=(self.api_key, ''))
         r.raise_for_status()
 
-        return utils.transform_tabular_data(r.content)
+        return utils.transform_tabular_data(r.content, table_name)
 
     def get_employee_changed_table(self, table_name='jobInfo', since=None):
         """
@@ -647,6 +652,31 @@ class PyBambooHR(object):
         return r.json()
         # return utils.transform_time_off(r.content)
 
+    def get_time_off_policies(self, employee_id=None):
+
+        params = {}
+        if employee_id == None:
+          raise ValueError("Employee_id argument is required")
+        if not(employee_id.isdigit()):
+          raise ValueError("Employee_id must be a number")
+
+        r = self._query('employees/' + employee_id + '/time_off/policies', params, raw=True)
+        return r.json()
+        
+    def get_time_off_calculations(self, employee_id=None, end_date=None):
+        end_date = utils.resolve_date_argument(end_date)
+
+        params = {}
+        if end_date:
+            params['end'] = end_date
+        if employee_id == None:
+          raise ValueError("Employee_id argument is required")
+        if not(employee_id.isdigit()):
+          raise ValueError("Employee_id must be a number")
+
+        r = self._query('employees/' + employee_id + '/time_off/calculator', params, raw=True)
+        return r.json()
+        
     def get_meta_fields(self):
         """
         API method for returning a list of fields info.
@@ -707,6 +737,38 @@ class PyBambooHR(object):
         """
 
         url = self.base_url + "meta/users/"
+        r = requests.get(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return r.json()
+
+    def get_meta_time_off_types(self):
+        """
+        API method for returning a dictionary of time off types.
+        https://www.bamboohr.com/api/documentation/metadata.php#getTimeOffTypes
+        Success Response: 200
+        The HTTP Content-type header will be set with the mime type for the response.
+
+        @return: dictionary containing users information
+        """
+
+        url = self.base_url + "meta/time_off/types/"
+        r = requests.get(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
+        r.raise_for_status()
+
+        return r.json()
+
+    def get_meta_time_off_policies(self):
+        """
+        API method for returning a dictionary of time off policies.
+        https://www.bamboohr.com/api/documentation/metadata.php#getTimeOffPolicies
+        Success Response: 200
+        The HTTP Content-type header will be set with the mime type for the response.
+
+        @return: dictionary containing users information
+        """
+
+        url = self.base_url + "meta/time_off/policies/"
         r = requests.get(url, timeout=self.timeout, headers=self.headers, auth=(self.api_key, ''))
         r.raise_for_status()
 

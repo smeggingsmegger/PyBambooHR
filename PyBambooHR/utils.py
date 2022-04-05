@@ -77,7 +77,7 @@ def resolve_date_argument(arg):
         return None
     raise ValueError("Date argument {} must be either datetime, date, or string in form YYYY-MM-DD".format(arg))
 
-def transform_tabular_data(xml_input):
+def transform_tabular_data(xml_input, table_name):
     """
     Converts table data (xml) from BambooHR into a dictionary with employee
     id as key and a list of dictionaries.
@@ -105,6 +105,8 @@ def transform_tabular_data(xml_input):
     rows = _extract(obj, 'table', 'row')
     by_employee_id = {}
     for row in rows:
+        if not('field' in row):
+            raise ValueError("User does not have access to the {} table".format(table_name))
         eid = row['@employeeId']
         field_list = row['field'] if type(row['field']) is list \
             else [row['field']]
